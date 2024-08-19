@@ -1,0 +1,9 @@
+
+.File { 
+    display:flex;
+    grid-column: 2;
+    justify-content: space-around;
+    color : var(--dark-tile-color);
+    height: calc(.25*var(--tile-size))
+
+}

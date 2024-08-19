@@ -1,0 +1,8 @@
+
+<div class="flex gap-4 justify-center mt-20 w-full hover:-translate-y-1 transition-delay:1s">
+<button *ngFor="let name of names" class="backdrop-blur-sm hover:bg-[#eedc97] text-[#eedc97] hover:text-[#241a0f]
+                   py-2 px-4 border 
+                 border-[#eedc97] hover:border-transparent" routerLink="/{{name}}" routerLinkActive="active">
+    {{name}}
+  </button>
+</div>

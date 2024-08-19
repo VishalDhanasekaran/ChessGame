@@ -1,0 +1,20 @@
+
+.Board {
+    display:grid ; 
+    position:relative;
+    grid-template-columns: calc(0.25*var(--tile-size)) calc(8*var(--tile-size));
+}
+
+.tiles {
+    display: grid;
+    grid-template-columns: repeat(8,var(--tile-size));
+    grid-template-rows : repeat(8,var(--tile-size));
+    width : calc(8*var(--tile-size));
+}
+
+.tile--light {
+    background: var(--light-tile-color);
+}
+.tile--dark { 
+    background: var(--dark-tile-color);
+}
