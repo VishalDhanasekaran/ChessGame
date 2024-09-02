@@ -29,7 +29,7 @@ const Board = () => {
                     
                 
             </div>
-            <Pieces  key={Math.random()}/>
+            <Pieces  />
             <Files files={files}/>
             
         </div>
