@@ -2,10 +2,20 @@ import "./Pieces.css";
 import Piece from "./Piece.jsx";
 import { useState, useRef } from "react";
 import { copyPosition, createPosition } from "../../helper.js";
+import { useAppContext } from "../../contexts/Context.js";
+import { makeNewMove } from "../../reducer/actions/move.js";
 export default function Pieces() {
-  const [state, setState] = useState(createPosition());
-
   const ref = useRef();
+  const { appState, dispatch } = useAppContext();
+
+  console.log("APSTATE:", appState);
+  // to get the last position
+  const currentPosition = appState.position[appState.position.length - 1];
+
+  if (!currentPosition) {
+    console.log("currentposition not defined");
+    return;
+  }
   console.log();
 
   const returnCoords = (e) => {
@@ -17,33 +27,32 @@ export default function Pieces() {
     return { x, y };
   };
   function onDrop(e) {
-    const newPosition = copyPosition(state);
+    const newPosition = copyPosition(currentPosition);
     const { x, y } = returnCoords(e);
 
     const [p, rank, file] = e.dataTransfer.getData("text").split(",");
-    console.log(p, rank, file);
-    console.log(rank, x, file, y);
     if (rank == x && file == y) {
       console.log("dont do shit");
     } else {
-      newPosition[x][y] = p;
+      newPosition[Number(x)][Number(y)] = p;
       newPosition[rank][file] = "";
+      dispatch(makeNewMove({ newPosition }));
     }
-    setState(newPosition);
   }
   function onDragOver(e) {
     e.preventDefault();
   }
+  console.log("CURR", currentPosition);
   return (
     <div onDrop={onDrop} onDragOver={onDragOver} className="pieces" ref={ref}>
-      {state.map((r, rank) =>
+      {currentPosition.map((r, rank) =>
         r.map((f, file) =>
-          state[rank][file] ? (
+          currentPosition[rank][file] ? (
             <Piece
               key={rank + "-" + file}
               rank={rank}
               file={file}
-              piece={state[rank][file]}
+              piece={currentPosition[rank][file]}
             />
           ) : null,
         ),
