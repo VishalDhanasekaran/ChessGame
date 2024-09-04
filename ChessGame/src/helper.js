@@ -26,7 +26,6 @@ export const createPosition = () => {
     position[1][index] = "pw";
     position[7 - 1][index] = "pb";
   }
-  console.log("POSITION:", position);
   return position;
 };
 
