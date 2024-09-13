@@ -27,41 +27,35 @@ export const getPawnMoves = ({position , rank , file }) => {
     const enemy = (position?.[rank]?.[file].endsWith('W'))?'B':'W'
     const player = (enemy === 'W')?'B':'W'
     console.log("Player pawn: ",player," Enemy : ",enemy)
-    const candidateMoves =[
-        [2,0],
-        [1,0],[1,1],[1,-1],
-        [-1,0],[-1,1],[-1,-1],
-        [-2,0],
-    ]
-    candidateMoves.forEach(
-        (c) => {
-            
-            const cell = position?.[rank + c[0]]?.[file + c[1]]
-      console.log("cell",cell)
-            if ((cell !== undefined)  && (!cell.endsWith(player))){
-                if (!cell.endsWith(enemy) && (c[1] === 0)){
+    const direction = (player === 'W')?1:-1
+    
+    if (!position?.[rank + direction]?.[file]){
+      moves.push([rank+direction,file])
+    }  
 
-                  if ((c[0] !== 2) && (c[0] !== -2)){
-                    if ((((c[1] < 0) || (c[0] < 0))&& player === 'B')
-                        ||(((c[1] > 0) || (c[0] > 0))&& player === 'W')
-                        ){
-                    moves.push([rank+c[0],file+c[1]])
-                  }
-          }
-                  else if(((rank === 1) && (c[0] === 2))||((rank === 6 )&& (c[0] === -2))){
-
-                    moves.push([rank+c[0],file+c[1]])
-                  }
-
-                }else if (cell.endsWith(enemy) && (c[1] !== 0)){
-                  if(((c[0] === 1) && (player === 'W'))||((c[0] === -1)&&(player === 'B'))){
-                    moves.push([rank+c[0],file+c[1]])
-                  }
-                }
-            }
-        }
-    )
+    if (rank % 5 === 1 ){
+      console.log("two")
+      if(position?.[rank + direction]?.[file] === '' && position?.[rank + (2*direction)]?.[file] === ''){
+        console.log("sum")
+        moves.push([rank + (2*direction) , file ])
+      }
+    } 
   return moves
+}
+export const getPawnCaptures= ({position , rank , file }) => {
+    const moves = []
+    const enemy = (position?.[rank]?.[file].endsWith('W'))?'B':'W'
+    const player = (enemy === 'W')?'B':'W'
+    console.log("Player pawn: ",player," Enemy : ",enemy)
+    const direction = (player === 'W')?1:-1
+    if (position?.[rank + direction ]?.[file - 1] && position?.[rank + direction]?.[file - 1].endsWith(enemy)){
+      moves.push([rank + direction ,file -1])
+    }
+    if (position?.[rank + direction ]?.[file + 1] && position?.[rank + direction]?.[file + 1].endsWith(enemy)){
+      moves.push([rank + direction ,file +1])
+    }
+    return moves
+
 }
 
 export const getQueenMoves  = ({position, rank , file}) => {

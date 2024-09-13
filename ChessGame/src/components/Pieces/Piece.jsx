@@ -12,6 +12,15 @@ const Piece = ({ rank, file, piece }) => {
 
   
 
+  const onClick = (e) =>{
+
+    if (turn === piece[1]){
+    console.log("piece: ",piece[1]," turn : ",turn)
+        const CandidateMoves = arbiter.getRegularMoves({position:currentPosition,piece:piece, rank, file})
+        console.log("Candidate Moves" ,CandidateMoves)
+        dispatch(generateCandidateMoves(CandidateMoves))
+  }
+  }
   const onDragStart = (e) => {
     e.dataTransfer.effectAllowed = "move";
     e.dataTransfer.setData("text/plain", `${piece},${rank},${file}`);
@@ -36,6 +45,7 @@ const Piece = ({ rank, file, piece }) => {
       draggable={true}
       onDragStart={onDragStart}
       onDragEnd={onDragEnd}
+      onClick={onClick}
     />
   );
 };
