@@ -7,10 +7,7 @@ const arbiter = {
             case 'k':
               return getKingMoves({position,rank,file}) 
             case 'p':
-              return [
-                    ...getPawnMoves({position,rank,file}) ,
-                    ...getPawnCaptures({position,rank,file})
-                    ]
+              return getPawnMoves({position,rank,file}) 
             case 'q':
                 return getQueenMoves({position , rank , file });
             case 'n':
@@ -21,6 +18,19 @@ const arbiter = {
                 return getRookMoves({position , piece, rank , file });
             
         }
+    }
+    , 
+    getValidMoves : function({position, prevPosition, piece, rank , file})  {
+        let moves = this.getRegularMoves({position,piece, rank , file})
+
+        if (piece.startsWith('p')){
+            moves = [
+                ...moves, 
+                ...getPawnCaptures({position, prevPosition, piece, rank, file})
+            ]
+
+        }
+        return moves
     }
 }
 

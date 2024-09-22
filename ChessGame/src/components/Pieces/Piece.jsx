@@ -9,15 +9,16 @@ const Piece = ({ rank, file, piece }) => {
 
   const {turn , position } = appState;
   const currentPosition = position[position.length -1 ]
+  const prevPosition = position[position.length - 2]
 
   
 
   const onClick = (e) =>{
 
     if (turn === piece[1]){
-    console.log("piece: ",piece[1]," turn : ",turn)
-        const CandidateMoves = arbiter.getRegularMoves({position:currentPosition,piece:piece, rank, file})
-        console.log("Candidate Moves" ,CandidateMoves)
+        const CandidateMoves = arbiter.getValidMoves({position:currentPosition,
+                                                        prevPosition:prevPosition,
+                                                        piece:piece, rank, file})
         dispatch(generateCandidateMoves(CandidateMoves))
   }
   }
@@ -30,9 +31,8 @@ const Piece = ({ rank, file, piece }) => {
     }, 0);
 
     if (turn === piece[1]){
-    console.log("piece: ",piece[1]," turn : ",turn)
-        const CandidateMoves = arbiter.getRegularMoves({position:currentPosition,piece:piece, rank, file})
-        console.log("Candidate Moves" ,CandidateMoves)
+        const CandidateMoves = arbiter.getValidMoves({position:currentPosition,
+                                                        prevPosition:prevPosition,piece:piece, rank, file})
         dispatch(generateCandidateMoves(CandidateMoves))
     } 
   };

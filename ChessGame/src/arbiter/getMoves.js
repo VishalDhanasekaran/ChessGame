@@ -5,7 +5,7 @@ export const getKingMoves  = ({position, rank , file}) => {
     const player = (enemy === 'W')?'B':'W'
     console.log("Player knight: ",player," Enemy : ",enemy)
     const candidateMoves =[
-        [1,1],[1,-1],[-1,1],[-1,-1],
+      [1,1],[1,-1],[-1,1],[-1,-1],
       [-1,0],
       [1,0],
       [0,-1],
@@ -42,7 +42,7 @@ export const getPawnMoves = ({position , rank , file }) => {
     } 
   return moves
 }
-export const getPawnCaptures= ({position , rank , file }) => {
+export const getPawnCaptures= ({position , prevPosition ,rank , file }) => {
     const moves = []
     const enemy = (position?.[rank]?.[file].endsWith('W'))?'B':'W'
     const player = (enemy === 'W')?'B':'W'
@@ -54,6 +54,32 @@ export const getPawnCaptures= ({position , rank , file }) => {
     if (position?.[rank + direction ]?.[file + 1] && position?.[rank + direction]?.[file + 1].endsWith(enemy)){
       moves.push([rank + direction ,file +1])
     }
+
+    const enemyPawn = direction === 1 ? 'pB' : 'pW'
+    const adjacentFiles = [file -1 , file + 1]
+    if (prevPosition) { 
+      console.log("prevposreach")
+      if (( direction === 1  && rank === 4) || (direction === -1 && rank ===  3)){
+        console.log("direcheck")
+        adjacentFiles.forEach( F => {  
+          console.log("fareach",F)
+          console.log("enemy  pawn is adjacent: ",(position?.[rank]?.[F] === enemyPawn))
+          console.log("enemy pawn took two steps: ",position?.[rank + direction + direction]?.[F] === '')
+          console.log("prev the place occupied was empty : ",prevPosition?.[rank]?.[F] === '')
+          console.log("enemy pawn was two steps behind: ",prevPosition?.[rank+direction+direction]?.[F] === enemyPawn)
+          console.log("current : ",position ,"prev",prevPosition)
+
+        if ((position?.[rank]?.[F] === enemyPawn) && // means the enemy pawn is adjacent 
+              (position?.[rank + direction + direction]?.[F] === '') // means the enemy pawn has taken two steps
+                && (prevPosition?.[rank]?.[F] === '') // previously the place occupied now was empty
+              && (prevPosition?.[rank+direction+direction]?.[F] === enemyPawn)){ // means the enemy pawn was two steps behind, confirming the valid move for en-passant
+                moves.push([rank+direction, F ])
+            } 
+           })
+    }
+  }else{
+    console.log("undev",prevPosition)
+  }
     return moves
 
 }
