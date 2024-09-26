@@ -1,6 +1,6 @@
-@import './constants.css';
+@import "./constants.css";
 .App {
-    display:grid; 
+    display: grid;
     place-content: center;
-    height : 100vh;
+    height: 100vh;
 }
