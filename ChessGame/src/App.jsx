@@ -1,11 +1,9 @@
-import { useState } from "react";
-import Board from "./components/Board/Board";
-import ToggleButton from "./components/ToggleButton/TogggleButton";
-import "./App.css";
-import AppContext from "./contexts/Context";
 import { useReducer } from "react";
-import { reducer } from "./reducer/reducer";
+import "./App.css";
+import Board from "./components/Board/Board";
 import { initGameState } from "./constant";
+import AppContext from "./contexts/Context";
+import { reducer } from "./reducer/reducer";
 
 function App() {
   const [appState, dispatch] = useReducer(reducer, initGameState);
