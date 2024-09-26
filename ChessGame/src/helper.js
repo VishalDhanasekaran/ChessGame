@@ -5,19 +5,19 @@ export const createPosition = () => {
   // if(defaultVal === "White"){
   console.log("Option white");
   position[0][0] = "rW";
+  position[0][1] = "nW";
+  position[0][2] = "bW";
+  position[0][3] = "qW";
+  position[0][4] = "kW";
+  position[0][5] = "bW";
+  position[0][6] = "nW";
   position[0][7] = "rW";
   position[7][0] = "rB";
   position[7][7] = "rB";
-  position[0][1] = "nW";
-  position[0][6] = "nW";
   position[7][1] = "nB";
   position[7][6] = "nB";
-  position[0][2] = "bW";
-  position[0][5] = "bW";
   position[7][2] = "bB";
   position[7][5] = "bB";
-  position[0][3] = "qW";
-  position[0][4] = "kW";
   position[7][3] = "kB";
   position[7][4] = "qB";
 
@@ -29,14 +29,13 @@ export const createPosition = () => {
 };
 
 export const copyPosition = (oldposition) => {
-  const newPosition = new Array(8).fill('').map(x => new Array(8).fill(''))
+  const newPosition = new Array(8).fill("").map((x) => new Array(8).fill(""));
 
   for (let rank = 0; rank < 8; rank++) {
     for (let file = 0; file < 8; file++) {
-      newPosition[rank][file] = oldposition[rank][file]
+      newPosition[rank][file] = oldposition[rank][file];
     }
   }
 
-  return newPosition
-}
-
+  return newPosition;
+};

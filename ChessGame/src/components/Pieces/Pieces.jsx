@@ -1,9 +1,13 @@
-import "./Pieces.css";
 import Piece from "./Piece.jsx";
 import { useState, useRef } from "react";
 import { copyPosition, createPosition } from "../../helper.js";
 import { useAppContext } from "../../contexts/Context.js";
-import { clearCandidateMoves, makeNewMove } from "../../reducer/actions/move.js";
+import {
+  clearCandidateMoves,
+  makeNewMove,
+} from "../../reducer/actions/move.js";
+import arbiter from "../../arbiter/arbiter.jsx";
+import { initEngine } from "../../Engine/ChessEngine.js";
 export default function Pieces() {
   const ref = useRef();
   const { appState, dispatch } = useAppContext();
@@ -22,26 +26,45 @@ export default function Pieces() {
     const x = 7 - Math.floor((e.clientY - top) / size);
     return { x, y };
   };
-  function onDrop(e) {
-    const newPosition = copyPosition(currentPosition);
+  const move = (e) => {
     const { x, y } = returnCoords(e);
-
-    const [p, rank, file] = e.dataTransfer.getData("text").split(",");
-    if ((rank == x && file == y) || appState.turn != p[1]) {
-    } else {
-    if (appState.candidateMoves?.find(m => m[0] == x && m[1] == y)){
-      if(p.startsWith('p') && !newPosition[x][y]  && x !== rank && y !== file){
-        // checks for a pawn ,to move into an empty space, with the destination coords not being the same as the current position 
-        // removes the enemy pawn that has moved adjacent with our pawn
-        newPosition[rank][y] = ''
-
-      }
-      newPosition[Number(x)][Number(y)] = p;
-      newPosition[rank][file] = "";
+    const [piece, rank, file] = e.dataTransfer.getData("text").split(",");
+    if (appState.candidateMoves.find((m) => m[0] === x && m[1] === y)) {
+      const newPosition = arbiter.performMove({
+        position: currentPosition,
+        piece,
+        rank,
+        file,
+        x,
+        y,
+      });
       dispatch(makeNewMove({ newPosition }));
     }
+    dispatch(clearCandidateMoves());
+  };
+
+  function autoMove(prevEvent, piece, x, y) {
+    const [prevpiece, rank, file] = prevEvent.dataTransfer
+      .getData("text")
+      .split(",");
+    if (appState.candidateMoves.find((m) => m[0] === x && m[1] === y)) {
+      const newPosition = arbiter.performMove({
+        position: currentPosition,
+        piece,
+        rank,
+        file,
+        x,
+        y,
+      });
+      console.log("MOVED");
+      dispatch(makeNewMove({ newPosition }));
+    }
+    dispatch(clearCandidateMoves());
   }
-  dispatch(clearCandidateMoves())
+
+  function onDrop(e) {
+    e.preventDefault();
+    move(e);
   }
   function onDragOver(e) {
     e.preventDefault();
@@ -51,7 +74,6 @@ export default function Pieces() {
       {currentPosition.map((r, rank) =>
         r.map((f, file) =>
           currentPosition[rank][file] ? (
-            
             <Piece
               key={rank + "-" + file}
               rank={rank}
