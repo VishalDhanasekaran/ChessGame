@@ -1,9 +1,9 @@
-import { useReducer } from "react";
-import "./App.css";
 import Board from "./components/Board/Board";
-import { initGameState } from "./constant";
+import "./App.css";
 import AppContext from "./contexts/Context";
+import { useReducer } from "react";
 import { reducer } from "./reducer/reducer";
+import { initGameState } from "./constant";
 
 function App() {
   const [appState, dispatch] = useReducer(reducer, initGameState);

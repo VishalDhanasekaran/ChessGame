@@ -1,47 +1,49 @@
+
 .Board {
-    display: grid;
-    position: relative;
-    grid-template-columns: calc(0.25 * var(--tile-size)) calc(
-            8 * var(--tile-size)
-        );
+    display:grid ; 
+    position:relative;
+    grid-template-columns: calc(0.25*var(--tile-size)) calc(8*var(--tile-size));
 }
 
 .tiles {
     display: grid;
-    grid-template-columns: repeat(8, var(--tile-size));
-    grid-template-rows: repeat(8, var(--tile-size));
-    width: calc(8 * var(--tile-size));
+    grid-template-columns: repeat(8,var(--tile-size));
+    grid-template-rows : repeat(8,var(--tile-size));
+    width : calc(8*var(--tile-size));
 }
 
 .tile--light {
     background: var(--light-tile-color);
 }
-.tile--dark {
+.tile--dark { 
     background: var(--dark-tile-color);
 }
-.highlighting:after {
-    content: "";
-    display: black;
-    position: absolute;
-    width: calc(0.5 * var(--tile-size));
-    height: calc(0.5 * var(--tile-size));
+.highlighting:after{
+    content:'';
+    display:black;
+    position:absolute;
+    width : calc(.5*var(--tile-size));
+    height : calc(.5*var(--tile-size));
     background: var(--highlight);
-    opacity: 0.5;
+    opacity: .5;
 
-    border-radius: 25%;
-    margin-left: calc(0.25 * var(--tile-size));
-    margin-top: calc(0.25 * var(--tile-size));
+    border-radius:25%;
+    margin-left: 25px;
+    margin-top : 25px;
+       
 }
-.attacking:after {
-    content: "";
-    display: black;
-    position: absolute;
-    width: calc(0.75 * var(--tile-size));
-    height: calc(0.75 * var(--tile-size));
-    opacity: 0.5;
-    border: 10px solid var(--highlight);
+.attacking:after{
+    content:'';
+    display:black;
+    position:absolute;
+    width :calc(.75*var(--tile-size));
+    height :calc(.75*var(--tile-size));
+    opacity: .5;
+    border:10px solid var(--highlight);
     margin-top: 3px;
     margin-left: 3px;
+    
 
-    border-radius: 25%;
+    border-radius:25%;
+       
 }

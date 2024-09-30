@@ -7,7 +7,14 @@ export const reducer = (state, action) => {
 
       turn = turn === "W" ? "B" : "W";
 
-      console.log("oldie",position,"newie",action.payload.newPosition)
+      console.log(
+        "turn: ",
+        turn,
+        "oldie",
+        position,
+        "newie",
+        action.payload.newPosition,
+      );
       position = [...position, action.payload.newPosition];
       return {
         ...state,
@@ -15,19 +22,19 @@ export const reducer = (state, action) => {
         position,
       };
     }
-    case actionTypes.GENERATE_CANDIDATE_MOVES : {
+    case actionTypes.GENERATE_CANDIDATE_MOVES: {
       return {
         ...state,
-        candidateMoves : action.payload.candidateMoves
-      }
+        candidateMoves: action.payload.candidateMoves,
+      };
     }
-    case actionTypes.CLEAR_CANDIDATE_MOVES : {
+    case actionTypes.CLEAR_CANDIDATE_MOVES: {
       return {
         ...state,
-        candidateMoves : []
-      }
+        candidateMoves: [],
+      };
     }
     default:
       return state;
   }
-}
+};
