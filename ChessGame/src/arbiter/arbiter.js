@@ -11,7 +11,6 @@ import { movePawn, movePiece } from "./move";
 
 const arbiter = {
   getRegularMoves: function ({ position, piece, rank, file }) {
-    console.log("pice[0] when it h", piece[0]);
     switch (piece[0]) {
       case "k":
         return getKingMoves({ position, rank, file });
