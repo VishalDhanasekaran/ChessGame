@@ -9,9 +9,12 @@ import {
 } from "../../reducer/actions/move.js";
 import arbiter from "../../arbiter/arbiter.js";
 import { useEffect } from "react";
+import { useState } from "react";
+import { openPromotion } from "../../reducer/actions/popup.js";
 export default function Pieces() {
   const ref = useRef();
   const { appState, dispatch } = useAppContext();
+  const [shouldAutomate, setShouldAutomate] = useState(false);
 
   // to get the last position
   const currentPosition = appState.position[appState.position.length - 1];
@@ -28,6 +31,10 @@ export default function Pieces() {
     console.log("x:", x, " clix:", e.clientX, "y:", y, " cliy", e.clientY);
     return { x, y };
   };
+  const openPromotionPopup = ({ x, y, rank, file }) => {
+    dispatch(openPromotion({ x, y, rank: Number(rank), file: Number(file) }));
+    setShouldAutomate(true);
+  };
   const move = (e) => {
     const { x, y } = returnCoords(e);
     const [piece, rank, file] = e.dataTransfer.getData("text").split(",");
@@ -43,6 +50,10 @@ export default function Pieces() {
       file,
     );
     if (appState.candidateMoves.find((m) => m[0] === x && m[1] === y)) {
+      if ((piece === "pW" && x === 7) || (piece === "pB" && y === 0)) {
+        openPromotionPopup({ x, y, rank, file });
+        return;
+      }
       const newPosition = arbiter.performMove({
         position: currentPosition,
         piece,
@@ -51,7 +62,10 @@ export default function Pieces() {
         x,
         y,
       });
-      dispatch(makeNewMove({ newPosition }));
+      if (newPosition) {
+        dispatch(makeNewMove({ newPosition }));
+        setShouldAutomate(true);
+      }
     } else {
       console.log("Move iscarded ");
     }
@@ -59,9 +73,7 @@ export default function Pieces() {
   };
 
   function onDrop(e) {
-    console.log(currentPosition);
     e.preventDefault();
-    console.log();
     move(e);
   }
   function onDragOver(e) {
@@ -72,15 +84,16 @@ export default function Pieces() {
     const latestPosition = appState.position[appState.position.length - 1];
 
     // Create a deep copy of the position to avoid mutation
-    const copiedPosition = copyPosition(latestPosition);
+    let copiedPosition = copyPosition(latestPosition);
     console.log(copiedPosition);
 
     // Find a piece to move and generate valid moves
-    let i = 9;
-    while (appState.turn === "B") {
+    let i = 1000;
+    while (i > 0) {
+      i -= 1;
       console.log("inside while");
-      const rank = Math.floor(Math.random() * 7);
-      const file = Math.floor(Math.random() * 7);
+      const rank = Math.floor(Math.random() * 8);
+      const file = Math.floor(Math.random() * 8);
       console.log(rank, file);
       const piece = copiedPosition[rank][file];
       if (piece.endsWith("B")) {
@@ -96,7 +109,7 @@ export default function Pieces() {
         if (
           candidateMoves === undefined ||
           candidateMoves[0] === undefined ||
-          candidateMoves.size === 0
+          candidateMoves.length === 0
         ) {
           continue;
         }
@@ -112,7 +125,7 @@ export default function Pieces() {
           y: targetY,
         });
 
-        if (updatedPosition) {
+        if (updatedPosition.length > 0) {
           console.log("updated auto");
           console.log("dispaching ", piece, "", updatedPosition);
           dispatch(makeNewMove({ newPosition: updatedPosition }));
@@ -121,13 +134,19 @@ export default function Pieces() {
         dispatch(clearCandidateMoves());
       }
     }
-  };
-
-  useEffect(() => {
-    if (appState.turn === "B") {
-      makeAutomatedMove();
+    if (i <= 0) {
+      console.log("no valid moves");
+      alert("No valid moves for automated player");
     }
-  });
+  };
+  useEffect(() => {
+    if (shouldAutomate) {
+      makeAutomatedMove();
+      setShouldAutomate(false); // Reset after making the move
+      console.log(appState.position);
+    }
+  }, [shouldAutomate]);
+
   return (
     <div onDrop={onDrop} onDragOver={onDragOver} className="pieces" ref={ref}>
       {currentPosition.map((r, rank) =>
