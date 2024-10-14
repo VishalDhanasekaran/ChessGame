@@ -1,0 +1,28 @@
+.promotion-choices {
+    height: 12.5%;
+}
+.promotion-choices .piece {
+    width: 25%;
+    height: 100%;
+    border: 1 px solid var(--dark-tile-color);
+}
+.promotion-choices .piece:hover {
+    box-shadow: 0 0 0 5px var(--dark-tile-color) inset;
+    transform: scale(1.05);
+}
+
+.promotion-choices :is(.qW, .qB) {
+    left: 0;
+}
+
+.promotion-choices :is(.rW, .rB) {
+    left: 25%;
+}
+
+.promotion-choices :is(.bW, .bB) {
+    left: 50%;
+}
+
+.promotion-choices :is(.nW, .nB) {
+    left: 75%;
+}
