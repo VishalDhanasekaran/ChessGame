@@ -1,3 +1,44 @@
+export const getCastleDirection = ({ castleDirection, piece, rank, file }) => {
+  rank = Number(rank);
+  file = Number(file);
+  console.log("Direction is ", castleDirection, "piece is ", piece);
+  const direction = castleDirection[piece[1]];
+  if (piece.startsWith("k")) {
+    return "none";
+  }
+  if (file === 0 && rank === 0) {
+    if (direction === "both") {
+      return "right";
+    }
+    if (direction === "left") {
+      return "none";
+    }
+  }
+  if (file === 7 && rank === 0) {
+    if (direction === "both") {
+      return "left";
+    }
+    if (direction === "right") {
+      return "none";
+    }
+  }
+  if (file === 0 && rank === 7) {
+    if (direction === "both") {
+      return "right";
+    }
+    if (direction === "left") {
+      return "none";
+    }
+  }
+  if (file === 7 && rank === 7) {
+    if (direction === "both") {
+      return "left";
+    }
+    if (direction === "right") {
+      return "none";
+    }
+  }
+};
 export const getKingMoves = ({ position, rank, file }) => {
   const moves = [];
   const enemy = position?.[rank]?.[file].endsWith("W") ? "B" : "W";
