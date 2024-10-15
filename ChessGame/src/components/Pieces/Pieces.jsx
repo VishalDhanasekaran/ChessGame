@@ -11,6 +11,11 @@ import arbiter from "../../arbiter/arbiter.js";
 import { useEffect } from "react";
 import { useState } from "react";
 import { openPromotion } from "../../reducer/actions/popup.js";
+import {
+  getCastleDirection,
+  getCastlingMoves,
+} from "../../arbiter/getMoves.js";
+import { updateCastling } from "../../reducer/game.js";
 export default function Pieces() {
   const ref = useRef();
   const { appState, dispatch } = useAppContext();
@@ -35,6 +40,17 @@ export default function Pieces() {
     dispatch(openPromotion({ x, y, rank: Number(rank), file: Number(file) }));
     setShouldAutomate(true);
   };
+  const updateCastlingState = ({ piece, rank, file }) => {
+    const direction = getCastleDirection({
+      castleDirection: appState.castleDirection,
+      piece,
+      rank,
+      file,
+    });
+    if (direction) {
+      dispatch(updateCastling(direction));
+    }
+  };
   const move = (e) => {
     const { x, y } = returnCoords(e);
     const [piece, rank, file] = e.dataTransfer.getData("text").split(",");
@@ -53,6 +69,9 @@ export default function Pieces() {
       if ((piece === "pW" && x === 7) || (piece === "pB" && y === 0)) {
         openPromotionPopup({ x, y, rank, file });
         return;
+      }
+      if (piece.startsWith("r") || piece.startsWith("k")) {
+        updateCastlingState({ piece, rank, file });
       }
       const newPosition = arbiter.performMove({
         position: currentPosition,
@@ -139,13 +158,6 @@ export default function Pieces() {
       alert("No valid moves for automated player");
     }
   };
-  useEffect(() => {
-    if (shouldAutomate) {
-      makeAutomatedMove();
-      setShouldAutomate(false); // Reset after making the move
-      console.log(appState.position);
-    }
-  }, [shouldAutomate]);
 
   return (
     <div onDrop={onDrop} onDragOver={onDragOver} className="pieces" ref={ref}>
