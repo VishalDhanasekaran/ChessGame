@@ -133,23 +133,21 @@ export const getPawnMoves = ({ position, rank, file }) => {
   const direction = player === "W" ? 1 : -1;
 
   if (!position?.[rank + direction]?.[file]) {
-    if (rank + direction > 0 && rank + direction < 9) {
+    if (rank + direction >= 0 && rank + direction < 9) {
       console.log("pushed");
       moves.push([rank + direction, file]);
     }
   }
 
   if (rank % 5 === 1) {
-    console.log("two");
     if (
       position?.[rank + direction]?.[file] === "" &&
       position?.[rank + 2 * direction]?.[file] === ""
     ) {
-      console.log("sum");
       moves.push([rank + 2 * direction, file]);
     }
   }
-  console.log("moves", moves);
+  console.log("moves for ", rank, "and ", file, " are ", moves);
   return moves;
 };
 export const getPawnCaptures = ({ position, prevPosition, rank, file }) => {
