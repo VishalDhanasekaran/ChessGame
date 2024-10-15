@@ -38,6 +38,7 @@ export const getCastlingMoves = ({
   );
   const moves = [];
   if (file !== 4 || rank % 7 !== 0 || castleDirection === "none") {
+    console.log("nothing", file, rank, castleDirection);
     return moves;
   }
   if (piece.endsWith("W")) {
