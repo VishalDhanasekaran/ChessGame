@@ -139,13 +139,6 @@ export default function Pieces() {
       alert("No valid moves for automated player");
     }
   };
-  useEffect(() => {
-    if (shouldAutomate) {
-      makeAutomatedMove();
-      setShouldAutomate(false); // Reset after making the move
-      console.log(appState.position);
-    }
-  }, [shouldAutomate]);
 
   return (
     <div onDrop={onDrop} onDragOver={onDragOver} className="pieces" ref={ref}>

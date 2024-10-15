@@ -21,6 +21,67 @@ export const getKingMoves = ({ position, rank, file }) => {
   });
   return moves;
 };
+export const getCastlingMoves = ({
+  position,
+  castleDirection,
+  piece,
+  rank,
+  file,
+}) => {
+  console.log(
+    "in get castling moves",
+    position,
+    castleDirection,
+    piece,
+    rank,
+    file,
+  );
+  const moves = [];
+  if (file !== 4 || rank % 7 !== 0 || castleDirection === "none") {
+    return moves;
+  }
+  if (piece.endsWith("W")) {
+    if (
+      ["left", "both"].includes(castleDirection) &&
+      position[0][0] === "rW" &&
+      !position[0][1] &&
+      !position[0][2] &&
+      !position[0][3]
+    ) {
+      moves.push([0, 2]);
+    }
+    if (
+      ["right", "both"].includes(castleDirection) &&
+      !position[0][5] &&
+      !position[0][6] &&
+      position[0][7] === "rW"
+    ) {
+      console.log("pushed?");
+      moves.push([0, 6]);
+    }
+  } else {
+    console.log("THISI SI JWKHEJWHEJKW HEJWK HEWJKEHWJEK WJE WD");
+    if (
+      ["left", "both"].includes(castleDirection) &&
+      position[7][0] === "rB" &&
+      !position[7][1] &&
+      !position[7][2] &&
+      !position[7][3]
+    ) {
+      moves.push([7, 2]);
+    }
+    if (
+      ["right", "both"].includes(castleDirection) &&
+      !position[7][5] &&
+      !position[7][6] &&
+      position[7][7] === "rB"
+    ) {
+      console.log("pushed?");
+      moves.push([7, 6]);
+    }
+  }
+  return moves;
+};
 export const getPawnMoves = ({ position, rank, file }) => {
   const moves = [];
   console.log(rank, file);

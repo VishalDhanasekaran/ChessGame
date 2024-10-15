@@ -6,6 +6,7 @@ import {
   getKnightMoves,
   getRookMoves,
   getPawnCaptures,
+  getCastlingMoves,
 } from "./getMoves";
 import { movePawn, movePiece } from "./move";
 
@@ -29,13 +30,34 @@ const arbiter = {
         return [];
     }
   },
-  getValidMoves: function ({ position, prevPosition, piece, rank, file }) {
+  getValidMoves: function ({
+    position,
+    prevPosition,
+    castleDirection,
+    piece,
+    rank,
+    file,
+  }) {
     let moves = this.getRegularMoves({ position, piece, rank, file });
     console.log("Valid Moves: ", moves);
     if (piece.startsWith("p")) {
       moves = [
         ...moves,
         ...getPawnCaptures({ position, prevPosition, piece, rank, file }),
+      ];
+    }
+    if (piece.startsWith("k")) {
+      console.log(
+        "Thois is avar pastion",
+        position,
+        castleDirection,
+        piece,
+        rank,
+        file,
+      );
+      moves = [
+        ...moves,
+        ...getCastlingMoves({ position, castleDirection, piece, rank, file }),
       ];
     }
     return moves;
