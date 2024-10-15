@@ -19,8 +19,8 @@ export const createPosition = () => {
   position[7][6] = "nB";
   position[7][2] = "bB";
   position[7][5] = "bB";
-  position[7][3] = "kB";
-  position[7][4] = "qB";
+  position[7][4] = "kB";
+  position[7][3] = "qB";
 
   for (let index = 0; index < 8; index++) {
     position[1][index] = "pW";
