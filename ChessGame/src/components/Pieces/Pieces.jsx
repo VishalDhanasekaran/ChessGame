@@ -66,7 +66,7 @@ export default function Pieces() {
       file,
     );
     if (appState.candidateMoves.find((m) => m[0] === x && m[1] === y)) {
-      if ((piece === "pW" && x === 7) || (piece === "pB" && y === 0)) {
+      if ((piece === "pW" && x === 7) || (piece === "pB" && x === 0)) {
         openPromotionPopup({ x, y, rank, file });
         return;
       }
