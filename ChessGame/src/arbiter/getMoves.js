@@ -1,3 +1,44 @@
+export const getCastleDirection = ({ castleDirection, piece, rank, file }) => {
+  rank = Number(rank);
+  file = Number(file);
+  console.log("Direction is ", castleDirection, "piece is ", piece);
+  const direction = castleDirection[piece[1]];
+  if (piece.startsWith("k")) {
+    return "none";
+  }
+  if (file === 0 && rank === 0) {
+    if (direction === "both") {
+      return "right";
+    }
+    if (direction === "left") {
+      return "none";
+    }
+  }
+  if (file === 7 && rank === 0) {
+    if (direction === "both") {
+      return "left";
+    }
+    if (direction === "right") {
+      return "none";
+    }
+  }
+  if (file === 0 && rank === 7) {
+    if (direction === "both") {
+      return "right";
+    }
+    if (direction === "left") {
+      return "none";
+    }
+  }
+  if (file === 7 && rank === 7) {
+    if (direction === "both") {
+      return "left";
+    }
+    if (direction === "right") {
+      return "none";
+    }
+  }
+};
 export const getKingMoves = ({ position, rank, file }) => {
   const moves = [];
   const enemy = position?.[rank]?.[file].endsWith("W") ? "B" : "W";
@@ -21,6 +62,68 @@ export const getKingMoves = ({ position, rank, file }) => {
   });
   return moves;
 };
+export const getCastlingMoves = ({
+  position,
+  castleDirection,
+  piece,
+  rank,
+  file,
+}) => {
+  console.log(
+    "in get castling moves",
+    position,
+    castleDirection,
+    piece,
+    rank,
+    file,
+  );
+  const moves = [];
+  if (file !== 4 || rank % 7 !== 0 || castleDirection === "none") {
+    console.log("nothing", file, rank, castleDirection);
+    return moves;
+  }
+  if (piece.endsWith("W")) {
+    if (
+      ["left", "both"].includes(castleDirection) &&
+      position[0][0] === "rW" &&
+      !position[0][1] &&
+      !position[0][2] &&
+      !position[0][3]
+    ) {
+      moves.push([0, 2]);
+    }
+    if (
+      ["right", "both"].includes(castleDirection) &&
+      !position[0][5] &&
+      !position[0][6] &&
+      position[0][7] === "rW"
+    ) {
+      console.log("pushed?");
+      moves.push([0, 6]);
+    }
+  } else {
+    console.log("THISI SI JWKHEJWHEJKW HEJWK HEWJKEHWJEK WJE WD");
+    if (
+      ["left", "both"].includes(castleDirection) &&
+      position[7][0] === "rB" &&
+      !position[7][1] &&
+      !position[7][2] &&
+      !position[7][3]
+    ) {
+      moves.push([7, 2]);
+    }
+    if (
+      ["right", "both"].includes(castleDirection) &&
+      !position[7][5] &&
+      !position[7][6] &&
+      position[7][7] === "rB"
+    ) {
+      console.log("pushed?");
+      moves.push([7, 6]);
+    }
+  }
+  return moves;
+};
 export const getPawnMoves = ({ position, rank, file }) => {
   const moves = [];
   console.log(rank, file);
@@ -30,23 +133,21 @@ export const getPawnMoves = ({ position, rank, file }) => {
   const direction = player === "W" ? 1 : -1;
 
   if (!position?.[rank + direction]?.[file]) {
-    if (rank + direction > 0 && rank + direction < 9) {
+    if (rank + direction >= 0 && rank + direction < 9) {
       console.log("pushed");
       moves.push([rank + direction, file]);
     }
   }
 
   if (rank % 5 === 1) {
-    console.log("two");
     if (
       position?.[rank + direction]?.[file] === "" &&
       position?.[rank + 2 * direction]?.[file] === ""
     ) {
-      console.log("sum");
       moves.push([rank + 2 * direction, file]);
     }
   }
-  console.log("moves", moves);
+  console.log("moves for ", rank, "and ", file, " are ", moves);
   return moves;
 };
 export const getPawnCaptures = ({ position, prevPosition, rank, file }) => {

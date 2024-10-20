@@ -9,6 +9,11 @@ export const initGameState = {
   position: [createPosition()],
   turn: "W",
   candidateMoves: [],
+
   status: Status.ongoing,
   promotionSquare: null,
+  castleDirection: {
+    W: "both",
+    B: "both",
+  },
 };
