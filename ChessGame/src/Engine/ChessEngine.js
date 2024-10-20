@@ -1,2 +1,6 @@
-// choose a random chess coin
-// create a chess engine that will integrate with the rest of the project
+import { Chess } from "./chess.js";
+var game = new Chess();
+export const recordMove = (from, to) => {
+  game.move({ from: from, to: to });
+  console.log(game.ascii());
+};

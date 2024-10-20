@@ -1,7 +1,7 @@
 import "./Pieces.css";
 import Piece from "./Piece.jsx";
 import { useRef } from "react";
-import { copyPosition } from "../../helper.js";
+import { copyPosition, getChar } from "../../helper.js";
 import { useAppContext } from "../../contexts/Context.js";
 import {
   clearCandidateMoves,
@@ -11,6 +11,7 @@ import arbiter from "../../arbiter/arbiter.js";
 import { useEffect } from "react";
 import { useState } from "react";
 import { openPromotion } from "../../reducer/actions/popup.js";
+import { recordMove } from "../../Engine/ChessEngine.js";
 export default function Pieces() {
   const ref = useRef();
   const { appState, dispatch } = useAppContext();
@@ -64,6 +65,10 @@ export default function Pieces() {
       });
       if (newPosition) {
         dispatch(makeNewMove({ newPosition }));
+        recordMove(
+          getChar(Number(file) + 1) + (Number(rank) + 1),
+          getChar(y + 1) + (Number(x) + 1),
+        );
         setShouldAutomate(true);
       }
     } else {
@@ -128,6 +133,11 @@ export default function Pieces() {
         if (updatedPosition.length > 0) {
           console.log("updated auto");
           console.log("dispaching ", piece, "", updatedPosition);
+
+          recordMove(
+            getChar(file + 1) + (rank + 1),
+            getChar(targetY + 1) + (targetX + 1),
+          );
           dispatch(makeNewMove({ newPosition: updatedPosition }));
           break;
         }
@@ -139,14 +149,14 @@ export default function Pieces() {
       alert("No valid moves for automated player");
     }
   };
-  useEffect(() => {
+  /*  useEffect(() => {
     if (shouldAutomate) {
       makeAutomatedMove();
       setShouldAutomate(false); // Reset after making the move
       console.log(appState.position);
     }
   }, [shouldAutomate]);
-
+  */
   return (
     <div onDrop={onDrop} onDragOver={onDragOver} className="pieces" ref={ref}>
       {currentPosition.map((r, rank) =>
