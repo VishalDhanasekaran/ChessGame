@@ -3,6 +3,7 @@
     --light-tile-color: #ffe6de;
     --dark-tile-color: #958d8d;
     --highlight: #555555;
+    --checked: #fe4848; 
 }
 @media all and (max-width: 450px) {
     :root {
