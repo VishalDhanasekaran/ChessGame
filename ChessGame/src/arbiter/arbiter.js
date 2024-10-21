@@ -7,6 +7,8 @@ import {
   getRookMoves,
   getPawnCaptures,
   getCastlingMoves,
+  getKingPosition,
+  getPieces
 } from "./getMoves";
 import { movePawn, movePiece } from "./move";
 
@@ -40,28 +42,32 @@ const arbiter = {
   }) {
     let moves = this.getRegularMoves({ position, piece, rank, file });
     console.log("Valid Moves: ", moves);
-    if (piece.startsWith("p")) {
+
+    const notInCheckMoves = [];
+
+    if (piece.startsWith("p")) 
+    {
       moves = [
         ...moves,
         ...getPawnCaptures({ position, prevPosition, piece, rank, file }),
       ];
     }
-    if (piece.startsWith("k")) {
-      console.log(
-        "Thois is avar pastion",
-        position,
-        castleDirection,
-        piece,
-        rank,
-        file,
-      );
-      moves = [
-        ...moves,
-        ...getCastlingMoves({ position, castleDirection, piece, rank, file }),
-      ];
+    if (piece.startsWith("k")) 
+    {
+      console.log("Thois is avar pastion",position,castleDirection,piece,rank,file,);
+
+      moves = [...moves,...getCastlingMoves({ position, castleDirection, piece, rank, file })];
     }
-    return moves;
+    
+    moves.forEach(([x, y])=>{
+      const positionAfterMove = this.performMove({position, piece, rank, file, x, y})
+      if (!this.isPlayerInCheck({positionAfterMove, position, player: piece[1]}))
+          notInCheckMoves.push([x, y]);
+    })
+
+    return notInCheckMoves;
   },
+
   performMove: function ({ position, piece, rank, file, x, y }) {
     if (piece.startsWith("p")) {
       return movePawn({ position, piece, rank, file, x, y });
@@ -69,6 +75,30 @@ const arbiter = {
       return movePiece({ position, piece, rank, file, x, y });
     }
   },
+
+  isPlayerInCheck: function({positionAfterMove,position, player})
+  {
+    const enemy = player.endsWith('W')? 'B' : 'W';
+    let kingPos = getKingPosition(positionAfterMove, player);
+    const enemyPieces = getPieces(positionAfterMove, enemy);
+
+    const enemyMoves = enemyPieces.reduce((acc, p) => acc = [
+      ...acc,
+      ...(p.piece.startsWith('p'))
+         ?getPawnCaptures({
+          position : positionAfterMove, 
+          prevPosition: position, 
+          ...p
+      }) 
+      : this.getRegularMoves({
+        position: positionAfterMove,
+        ...p
+      })
+    ], [])
+
+    return (enemyMoves.some(([x, y]) => kingPos[0] === x && kingPos[1] === y)) 
+      
+  }
 };
 
 export default arbiter;
