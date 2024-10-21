@@ -16,6 +16,7 @@ import {
   getCastlingMoves,
 } from "../../arbiter/getMoves.js";
 import { updateCastling } from "../../reducer/game.js";
+import { recordMove } from "../../Engine/ChessEngine.js";
 export default function Pieces() {
   const ref = useRef();
   const { appState, dispatch } = useAppContext();
@@ -38,7 +39,7 @@ export default function Pieces() {
   };
   const openPromotionPopup = ({ x, y, rank, file }) => {
     dispatch(openPromotion({ x, y, rank: Number(rank), file: Number(file) }));
-    setShouldAutomate(true);
+    // setShouldAutomate(true);
   };
   const updateCastlingState = ({ piece, rank, file }) => {
     const direction = getCastleDirection({
@@ -87,7 +88,7 @@ export default function Pieces() {
           getChar(Number(file) + 1) + (Number(rank) + 1),
           getChar(y + 1) + (Number(x) + 1),
         );
-        setShouldAutomate(true);
+        //   setShouldAutomate(true);
       }
     } else {
       console.log("Move iscarded ");
@@ -152,10 +153,7 @@ export default function Pieces() {
           console.log("updated auto");
           console.log("dispaching ", piece, "", updatedPosition);
 
-          recordMove(
-            getChar(file + 1) + (rank + 1),
-            getChar(targetY + 1) + (targetX + 1),
-          );
+          //    recordMove(getChar(file + 1) + (rank + 1),getChar(targetY + 1) + (targetX + 1),  );
           dispatch(makeNewMove({ newPosition: updatedPosition }));
           break;
         }
@@ -167,14 +165,14 @@ export default function Pieces() {
       alert("No valid moves for automated player");
     }
   };
-  /*  useEffect(() => {
+  useEffect(() => {
     if (shouldAutomate) {
       makeAutomatedMove();
       setShouldAutomate(false); // Reset after making the move
       console.log(appState.position);
     }
   }, [shouldAutomate]);
-  */
+
   return (
     <div onDrop={onDrop} onDragOver={onDragOver} className="pieces" ref={ref}>
       {currentPosition.map((r, rank) =>
