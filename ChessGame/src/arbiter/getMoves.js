@@ -103,7 +103,7 @@ export const getCastlingMoves = ({position,castleDirection,piece,rank,file,}) =>
   {
     if(arbiter.isPlayerInCheck({positionAfterMove : position, player: 'W'}))
       return moves
-    console.log("THISI SI JWKHEJWHEJKW HEJWK HEWJKEHWJEK WJE WD");
+  
     if (
       ["left", "both"].includes(castleDirection) &&
       position[7][0] === "rB" &&
@@ -274,9 +274,7 @@ export const getKnightMoves = ({ position, rank, file }) => {
   return moves;
 };
 export const getBishopMoves = ({ position, piece, rank, file }) => {
-  if (piece === null) {
-    console.log("piece is null at getMoves.js");
-  }
+
   const moves = [];
   const directions = [
     [1, 1],
@@ -362,7 +360,7 @@ export const getRookMoves = ({ position, piece, rank, file }) => {
         console.log("Player for ", x, y);
         break;
       }
-      console.log("psuhing ");
+      console.log("pushing: ");
       moves.push([x, y]);
     }
   });
