@@ -34,7 +34,7 @@ export default function Pieces() {
     const size = width / 8;
     const y = Math.floor((e.clientX - left) / size);
     const x = 7 - Math.floor((e.clientY - top) / size);
-    console.log("x:", x, " clix:", e.clientX, "y:", y, " cliy", e.clientY);
+    
     return { x, y };
   };
   const openPromotionPopup = ({ x, y, rank, file }) => {
@@ -55,17 +55,7 @@ export default function Pieces() {
   const move = (e) => {
     const { x, y } = returnCoords(e);
     const [piece, rank, file] = e.dataTransfer.getData("text").split(",");
-    console.log(
-      "Client log: ",
-      appState.candidateMoves,
-      "x:",
-      x,
-      "y:",
-      y,
-      piece,
-      rank,
-      file,
-    );
+    
     if (appState.candidateMoves.find((m) => m[0] === x && m[1] === y)) {
       if ((piece === "pW" && x === 7) || (piece === "pB" && x === 0)) {
         openPromotionPopup({ x, y, rank, file });
@@ -83,15 +73,15 @@ export default function Pieces() {
         y,
       });
       if (newPosition) {
-        dispatch(makeNewMove({ newPosition }));
+        dispatch(makeNewMove({ newPosition })); /*
         recordMove(
           getChar(Number(file) + 1) + (Number(rank) + 1),
           getChar(y + 1) + (Number(x) + 1),
         );
-        //   setShouldAutomate(true);
+           setShouldAutomate(true);*/
       }
     } else {
-      console.log("Move iscarded ");
+      
     }
     dispatch(clearCandidateMoves());
   };
@@ -109,16 +99,16 @@ export default function Pieces() {
 
     // Create a deep copy of the position to avoid mutation
     let copiedPosition = copyPosition(latestPosition);
-    console.log(copiedPosition);
+    
 
     // Find a piece to move and generate valid moves
     let i = 1000;
     while (i > 0) {
       i -= 1;
-      console.log("inside while");
+      
       const rank = Math.floor(Math.random() * 8);
       const file = Math.floor(Math.random() * 8);
-      console.log(rank, file);
+      
       const piece = copiedPosition[rank][file];
       if (piece.endsWith("B")) {
         // Assuming 'a' denotes the automated player's pieces
@@ -138,7 +128,7 @@ export default function Pieces() {
           continue;
         }
         const [targetX, targetY] = candidateMoves[0]; // Selecting the first valid move
-        console.log("updating mov", candidateMoves);
+        
 
         const updatedPosition = arbiter.performMove({
           position: copiedPosition,
@@ -150,8 +140,8 @@ export default function Pieces() {
         });
 
         if (updatedPosition.length > 0) {
-          console.log("updated auto");
-          console.log("dispaching ", piece, "", updatedPosition);
+          
+          
 
           //    recordMove(getChar(file + 1) + (rank + 1),getChar(targetY + 1) + (targetX + 1),  );
           dispatch(makeNewMove({ newPosition: updatedPosition }));
@@ -161,7 +151,7 @@ export default function Pieces() {
       }
     }
     if (i <= 0) {
-      console.log("no valid moves");
+      
       alert("No valid moves for automated player");
     }
   };
@@ -169,7 +159,7 @@ export default function Pieces() {
     if (shouldAutomate) {
       makeAutomatedMove();
       setShouldAutomate(false); // Reset after making the move
-      console.log(appState.position);
+      
     }
   }, [shouldAutomate]);
 

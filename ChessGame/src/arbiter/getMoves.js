@@ -3,7 +3,7 @@ import arbiter from "./arbiter";
 export const getCastleDirection = ({ castleDirection, piece, rank, file }) => {
   rank = Number(rank);
   file = Number(file);
-  console.log("Direction is ", castleDirection, "piece is ", piece);
+  
   const direction = castleDirection[piece[1]];
   if (piece.startsWith("k")) {
     return "none";
@@ -45,7 +45,7 @@ export const getKingMoves = ({ position, rank, file }) => {
   const moves = [];
   const enemy = position?.[rank]?.[file].endsWith("W") ? "B" : "W";
   const player = enemy === "W" ? "B" : "W";
-  console.log("Player knight: ", player, " Enemy : ", enemy);
+  
   const candidateMoves = [
     [1, 1],
     [1, -1],
@@ -64,27 +64,51 @@ export const getKingMoves = ({ position, rank, file }) => {
   });
   return moves;
 };
-export const getCastlingMoves = ({position,castleDirection,piece,rank,file,}) => {
-  console.log("in get castling moves", position, castleDirection,piece,rank,file,);
+export const getCastlingMoves = ({
+  position,
+  castleDirection,
+  piece,
+  rank,
+  file,
+}) => {
 
   const moves = [];
   if (file !== 4 || rank % 7 !== 0 || castleDirection === "none") {
-    console.log("nothing", file, rank, castleDirection);
+    
     return moves;
   }
   if (piece.endsWith("W")) {
-    if(arbiter.isPlayerInCheck({positionAfterMove : position, player: 'w'}))
-      return moves
+      if (arbiter.isPlayerInCheck({ positionAfterMove: position, player: "W" }))
+        return moves;
     if (
       ["left", "both"].includes(castleDirection) &&
       position[0][0] === "rW" &&
       !position[0][1] &&
       !position[0][2] &&
-      !position[0][3] && 
-      !arbiter.isPlayerInCheck({positionAfterMove :arbiter.performMove({position, piece, rank, file, x:0, y:3}), player: 'W'}) &&
-      !arbiter.isPlayerInCheck({positionAfterMove: arbiter.performMove({position, piece, rank, file, x:0, y:3}), player: 'W'}) 
-    )
-    {
+      !position[0][3] &&
+      !arbiter.isPlayerInCheck({
+        positionAfterMove: arbiter.performMove({
+          position,
+          piece,
+          rank,
+          file,
+          x: 0,
+          y: 3,
+        }),
+        player: "W",
+      }) &&
+      !arbiter.isPlayerInCheck({
+        positionAfterMove: arbiter.performMove({
+          position,
+          piece,
+          rank,
+          file,
+          x: 0,
+          y: 2,
+        }),
+        player: "W",
+      })
+    ) {
       moves.push([0, 2]);
     }
     if (
@@ -92,26 +116,65 @@ export const getCastlingMoves = ({position,castleDirection,piece,rank,file,}) =>
       !position[0][5] &&
       !position[0][6] &&
       position[0][7] === "rW" &&
-      !arbiter.isPlayerInCheck({positionAfterMove: arbiter.performMove({position, piece, rank, file, x: 0, y:5}), player: 'W'}) &&
-      !arbiter.isPlayerInCheck({positionAfterMove: arbiter.performMove({position, piece, rank, file, x: 0, y:6}), player: 'W'})
+      !arbiter.isPlayerInCheck({
+        positionAfterMove: arbiter.performMove({
+          position,
+          piece,
+          rank,
+          file,
+          x: 0,
+          y: 5,
+        }),
+        player: "W",
+      }) &&
+      !arbiter.isPlayerInCheck({
+        positionAfterMove: arbiter.performMove({
+          position,
+          piece,
+          rank,
+          file,
+          x: 0,
+          y: 6,
+        }),
+        player: "W",
+      })
     ) {
-      console.log("pushed?");
+      
       moves.push([0, 6]);
     }
-  } 
-  else 
-  {
-    if(arbiter.isPlayerInCheck({positionAfterMove : position, player: 'W'}))
-      return moves
-  
+  } else {
+    if (arbiter.isPlayerInCheck({ positionAfterMove: position, player: "B" }))
+      return moves;
+
     if (
       ["left", "both"].includes(castleDirection) &&
       position[7][0] === "rB" &&
       !position[7][1] &&
       !position[7][2] &&
-      !position[7][3] &&
-      ! arbiter.isPlayerInCheck({positionAfterMove: arbiter.performMove({position, piece, rank, file, x: 0, y:5}),player: 'W'}) &&
-      ! arbiter.isPlayerInCheck({positionAfterMove: arbiter.performMove({position, piece, rank, file, x: 7, y:6}),player: 'W'})
+      !position[7][3]  &&
+       !arbiter.isPlayerInCheck({
+        positionAfterMove: arbiter.performMove({
+          position,
+          piece,
+          rank,
+          file,
+          x: 7,
+          y: 3,
+        }),
+        player: "B",
+      }) &&
+      !arbiter.isPlayerInCheck({
+        positionAfterMove: arbiter.performMove({
+          position,
+          piece,
+          rank,
+          file,
+          x: 7,
+          y: 2,
+        }),
+        player: "B",
+      })
+   
     ) {
       moves.push([7, 2]);
     }
@@ -119,30 +182,48 @@ export const getCastlingMoves = ({position,castleDirection,piece,rank,file,}) =>
       ["right", "both"].includes(castleDirection) &&
       !position[7][5] &&
       !position[7][6] &&
-      position[7][7] === "rB" &&
-      !arbiter.isPlayerInCheck({positionAfterMove: arbiter.performMove({position, piece, rank, file, x: 7, y:5}), player: 'B'})&&
-      !arbiter.isPlayerInCheck({positionAfterMove: arbiter.performMove({position, piece, rank, file, x: 7, y:6}), player: 'B'})
- 
-    ) 
-    {
-      console.log("pushed?");
+      position[7][7] === "rB"
+      &&   !arbiter.isPlayerInCheck({
+        positionAfterMove: arbiter.performMove({
+          position,
+          piece,
+          rank,
+          file,
+          x: 7,
+          y: 5,
+        }),
+        player: "B",
+      }) &&
+      !arbiter.isPlayerInCheck({
+        positionAfterMove: arbiter.performMove({
+          position,
+          piece,
+          rank,
+          file,
+          x: 7,
+          y: 6,
+        }),
+        player: "B",
+      })
+      
+    ) {
+      
       moves.push([7, 6]);
     }
   }
   return moves;
-
 };
 export const getPawnMoves = ({ position, rank, file }) => {
   const moves = [];
-  console.log(rank, file);
+  
   const enemy = position?.[rank]?.[file].endsWith("W") ? "B" : "W";
   const player = enemy === "W" ? "B" : "W";
-  console.log("Player pawn: ", player, " Enemy : ", enemy);
+  
   const direction = player === "W" ? 1 : -1;
 
   if (!position?.[rank + direction]?.[file]) {
     if (rank + direction >= 0 && rank + direction < 9) {
-      console.log("pushed");
+      
       moves.push([rank + direction, file]);
     }
   }
@@ -155,14 +236,14 @@ export const getPawnMoves = ({ position, rank, file }) => {
       moves.push([rank + 2 * direction, file]);
     }
   }
-  console.log("moves for ", rank, "and ", file, " are ", moves);
+  
   return moves;
 };
 export const getPawnCaptures = ({ position, prevPosition, rank, file }) => {
   const moves = [];
   const enemy = position?.[rank]?.[file].endsWith("W") ? "B" : "W";
   const player = enemy === "W" ? "B" : "W";
-  console.log("Player pawn: ", player, " Enemy : ", enemy);
+  
   const direction = player === "W" ? 1 : -1;
   if (
     position?.[rank + direction]?.[file - 1] &&
@@ -180,28 +261,12 @@ export const getPawnCaptures = ({ position, prevPosition, rank, file }) => {
   const enemyPawn = direction === 1 ? "pB" : "pW";
   const adjacentFiles = [file - 1, file + 1];
   if (prevPosition) {
-    console.log("prevposreach");
+    
     if ((direction === 1 && rank === 4) || (direction === -1 && rank === 3)) {
-      console.log("direcheck");
+      
       adjacentFiles.forEach((F) => {
-        console.log("fareach", F);
-        console.log(
-          "enemy  pawn is adjacent: ",
-          position?.[rank]?.[F] === enemyPawn,
-        );
-        console.log(
-          "enemy pawn took two steps: ",
-          position?.[rank + direction + direction]?.[F] === "",
-        );
-        console.log(
-          "prev the place occupied was empty : ",
-          prevPosition?.[rank]?.[F] === "",
-        );
-        console.log(
-          "enemy pawn was two steps behind: ",
-          prevPosition?.[rank + direction + direction]?.[F] === enemyPawn,
-        );
-        console.log("current : ", position, "prev", prevPosition);
+        
+        
 
         if (
           position?.[rank]?.[F] === enemyPawn && // means the enemy pawn is adjacent
@@ -215,7 +280,7 @@ export const getPawnCaptures = ({ position, prevPosition, rank, file }) => {
       });
     }
   } else {
-    console.log("undev", prevPosition);
+    
   }
   return moves;
 };
@@ -224,7 +289,7 @@ export const getQueenMoves = ({ position, rank, file }) => {
   const moves = [];
   const enemy = position?.[rank]?.[file].endsWith("W") ? "B" : "W";
   const player = enemy === "W" ? "B" : "W";
-  console.log("Player knight: ", player, " Enemy : ", enemy);
+  
   const candidateMoves = [
     [1, 1],
     [1, -1],
@@ -254,7 +319,7 @@ export const getKnightMoves = ({ position, rank, file }) => {
   const moves = [];
   const enemy = position?.[rank]?.[file].endsWith("W") ? "B" : "W";
   const player = enemy === "W" ? "B" : "W";
-  console.log("Player knight: ", player, " Enemy : ", enemy);
+  
   const candidateMoves = [
     [2, 1],
     [2, -1],
@@ -274,7 +339,6 @@ export const getKnightMoves = ({ position, rank, file }) => {
   return moves;
 };
 export const getBishopMoves = ({ position, piece, rank, file }) => {
-
   const moves = [];
   const directions = [
     [1, 1],
@@ -287,35 +351,23 @@ export const getBishopMoves = ({ position, piece, rank, file }) => {
 
   directions.forEach((dir) => {
     for (var i = 1; i < 8; i++) {
-      console.log("index", i);
+      
       const x = rank + i * dir[0];
       const y = file + i * dir[1];
-      console.log(
-        "Currpos",
-        position?.[x]?.[y],
-        " ",
-        dir[0],
-        " ",
-        dir[1],
-        rank,
-        file,
-        x,
-        y,
-      );
       if (position?.[x]?.[y] === undefined) {
-        console.log("Undefined for ", x, y);
+        
         break;
       }
       if (position?.[x]?.[y].endsWith(enemy)) {
-        console.log("enemy for ", x, y);
+        
         moves.push([x, y]);
         break;
       }
       if (position?.[x]?.[y].endsWith(player)) {
-        console.log("Player for ", x, y);
+        
         break;
       }
-      console.log("psuhing ");
+      
       moves.push([x, y]);
     }
   });
@@ -325,9 +377,10 @@ export const getBishopMoves = ({ position, piece, rank, file }) => {
 export const getRookMoves = ({ position, piece, rank, file }) => {
   const moves = [];
   const player = piece[1];
-  console.log("player", player);
+  
+  
   const enemy = player === "W" ? "B" : "W";
-  console.log("Player : ", player, " Enemy : ", enemy);
+  
   const direction = [
     [-1, 0],
     [1, 0],
@@ -335,64 +388,58 @@ export const getRookMoves = ({ position, piece, rank, file }) => {
     [0, 1],
   ];
 
-  direction.forEach((dir) => {
-    for (var i = 1; i < 8; i++) {
-      console.log("index", i);
-      const x = rank + i * dir[0];
-      const y = file + i * dir[1];
-      
-      console.log("Currpos",position?.[x]?.[y]," ",dir[0]," ",dir[1], rank,
-        file,x,y,);
+  direction.forEach(dir => {
+    for (var i = 1; i <= 8; i++) {
+      const x = rank + (i * dir[0]);
+      const y = file + (i * dir[1]);
 
-      if (position?.[x]?.[y] === undefined) 
-      {
-        console.log("Undefined for ", x, y);
+      if (position?.[x]?.[y] === undefined) {
+        
         break;
       }
-      if (position?.[x]?.[y].endsWith(enemy)) 
-      {
-        console.log("enemy for ", x, y);
+      if (position?.[x]?.[y].endsWith(enemy)) {
+        
         moves.push([x, y]);
         break;
       }
-      if (position?.[x]?.[y].endsWith(player)) 
-      {
-        console.log("Player for ", x, y);
+      if (position?.[x]?.[y].endsWith(player)) {
         break;
       }
-      console.log("pushing: ");
       moves.push([x, y]);
     }
   });
+  
 
   return moves;
 };
 
 export const getKingPosition = (position, player) => {
+  if (!position)
+    return null;
   let kingPos;
   position.forEach((rank, x) => {
     rank.forEach((file, y) => {
-      if(position[x][y].endsWith(player) && position[x][y].startsWith('k'))
+      if (position[x][y].endsWith(player) && position[x][y].startsWith("k"))
         kingPos = [x, y];
-    })
-  })
+    });
+  });
 
   return kingPos;
-}
+};
 
 export const getPieces = (position, enemy) => {
   const enemyPieces = [];
 
-   position.forEach((rank, x) => {
+  position.forEach((rank, x) => {
     rank.forEach((file, y) => {
-      if(position[x][y].endsWith(enemy))
+      if (position[x][y].endsWith(enemy))
         enemyPieces.push({
-            piece: position[x][y],
-            file: x, 
-            rank: y
-        })
-    })
-  })
+          piece: position[x][y],
+          file: y,
+          rank: x,
+        });
+    });
+  });
 
-  return enemyPieces; 
-}
+  return enemyPieces;
+};

@@ -3,9 +3,9 @@ export const getChar = (number) => String.fromCharCode(number + 96);
 export const createPosition = () => {
   const position = new Array(8).fill("").map((x) => new Array(8).fill(""));
   // if(defaultVal === "White"){
-  console.log("Option white");
+  
 
-  position[0][0] = "rW";
+    position[0][0] = "rW";
   position[0][1] = "nW";
   position[0][2] = "bW";
   position[0][3] = "qW";

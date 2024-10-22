@@ -46,16 +46,7 @@
     border-radius: 25%;
 }
 
-.checked:after {
-    content: '';
-    display: block;
-    position: absolute;
-    content: '';
-    width: var(--tile-size);
-    height: var(--tile-size);
-    background: var(--checked);
+.checked {
     
-    border-radius: 20%;
-    margin-left: 25%;
-    margin-top: 25%;
+    background: var(--checked);
 }
