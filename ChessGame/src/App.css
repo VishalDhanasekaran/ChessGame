@@ -4,3 +4,11 @@
     place-content: center;
     height: 100vh;
 }
+button {
+  background: var(--dark-tile);
+  color: var(--light-tile);
+  border: 2;
+  padding: 10px 30px;
+  margin: 10px 0;
+  font-size: 1.1em;
+} 
