@@ -2,8 +2,6 @@ export const getChar = (number) => String.fromCharCode(number + 96);
 
 export const createPosition = () => {
   const position = new Array(8).fill("").map((x) => new Array(8).fill(""));
-  // if(defaultVal === "White"){
-  console.log("Option white");
 
   position[0][0] = "rW";
   position[0][1] = "nW";
@@ -21,6 +19,7 @@ export const createPosition = () => {
   position[7][5] = "bB";
   position[7][4] = "kB";
   position[7][3] = "qB";
+
 
   for (let index = 0; index < 8; index++) {
     position[1][index] = "pW";
@@ -40,3 +39,17 @@ export const copyPosition = (oldposition) => {
 
   return newPosition;
 };
+
+export const areSameColorTiles = (coords1, coords2) =>
+  (coords1.x + coords1.y) % 2 === coords2.x + coords2.y;
+
+export const findPieceCoords = (position, type) => {
+  let results = [];
+  position.forEach((rank, i) => {
+    rank.forEach((pos, j) => {
+      if (pos === type) results.push({ x: i, y: j });
+    });
+  });
+  return results;
+};
+

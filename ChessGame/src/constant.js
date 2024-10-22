@@ -5,6 +5,7 @@ export const Status = {
   white: "White is  wins",
   black: "Black is wins",
   stalemate : 'Game draws due to stalemate',
+  insufficient : 'Game draws due to insufficient material', 
 };
 export const initGameState = {
   position: [createPosition()],

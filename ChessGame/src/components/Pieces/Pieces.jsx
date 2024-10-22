@@ -15,11 +15,10 @@ import {
   getCastleDirection,
   getCastlingMoves,
 } from "../../arbiter/getMoves.js";
-import { updateCastling } from "../../reducer/game.js";
-import { evaluateBoard } from "../../Engine/ChessEngine.js";
-import { Status } from "../../constant.js";
-import App from "../../App.jsx";
-import { detectStalemate } from "../../reducer/game.js";
+
+import { detectStalemate, updateCastling, detectInsufficientMaterial, detectCheckMate } from "../../reducer/game.js";
+import { recordMove } from "../../Engine/ChessEngine.js";
+
 export default function Pieces() {
   const ref = useRef();
   const { appState, dispatch } = useAppContext();
@@ -81,15 +80,15 @@ export default function Pieces() {
 
       if (newPosition) {
         dispatch(makeNewMove({ newPosition }));
-        const isCheckMate = arbiter.isStalemate(
-          newPosition,
-          opponent,
-          castleDirection,
-        );
-        if (isCheckMate) dispatch(detectStalemate());
-      }
-      // dispatch(makeNewMove({ newPosition }));
-    }
+        if(arbiter.insufficientMaterial(newPosition)) 
+          dispatch(detectInsufficientMaterial());
+        else if(arbiter.isStalemate(newPosition, opponent, castleDirection)) 
+          dispatch(detectStalemate());
+        
+        else if(arbiter.isCheckMate(newPosition, opponent, castleDirection)) 
+          dispatch(detectCheckMate(piece[1]));
+      } 
+    }  
 
     dispatch(clearCandidateMoves());
   };
