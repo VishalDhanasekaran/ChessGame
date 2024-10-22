@@ -15,15 +15,11 @@ import {
   getCastleDirection,
   getCastlingMoves,
 } from "../../arbiter/getMoves.js";
-<<<<<<< HEAD
 import { updateCastling } from "../../reducer/game.js";
 import { evaluateBoard } from "../../Engine/ChessEngine.js";
 import { Status } from "../../constant.js";
 import App from "../../App.jsx";
-=======
-import { detectStalemate, updateCastling } from "../../reducer/game.js";
-import { recordMove } from "../../Engine/ChessEngine.js";
->>>>>>> 887606e3526c37d9294da3900cd0d73ae07ebea7
+import { detectStalemate } from "../../reducer/game.js";
 export default function Pieces() {
   const ref = useRef();
   const { appState, dispatch } = useAppContext();
@@ -62,10 +58,10 @@ export default function Pieces() {
     const { x, y } = returnCoords(e);
     const [piece, rank, file] = e.dataTransfer.getData("text").split(",");
 
-    if (appState.candidateMoves.find((m) => m[0] === x && m[1] === y))
-    {
-      const opponent = piece.endsWith('B')? 'W' : 'B';
-      const castleDirection = appState.castleDirection[`${piece.endsWith('B')? 'W' : 'B'}`];
+    if (appState.candidateMoves.find((m) => m[0] === x && m[1] === y)) {
+      const opponent = piece.endsWith("B") ? "W" : "B";
+      const castleDirection =
+        appState.castleDirection[`${piece.endsWith("B") ? "W" : "B"}`];
 
       if ((piece === "pW" && x === 7) || (piece === "pB" && x === 0)) {
         openPromotionPopup({ x, y, rank, file });
@@ -83,17 +79,16 @@ export default function Pieces() {
         y,
       });
 
-
-      if(newPosition)
-      {
+      if (newPosition) {
         dispatch(makeNewMove({ newPosition }));
-        const isCheckMate = arbiter.isStalemate(newPosition, opponent, castleDirection);
-        if(isCheckMate)
-          dispatch(detectStalemate());
+        const isCheckMate = arbiter.isStalemate(
+          newPosition,
+          opponent,
+          castleDirection,
+        );
+        if (isCheckMate) dispatch(detectStalemate());
       }
-     // dispatch(makeNewMove({ newPosition }));
-
-
+      // dispatch(makeNewMove({ newPosition }));
     }
 
     dispatch(clearCandidateMoves());
