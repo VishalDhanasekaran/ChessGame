@@ -1,7 +1,7 @@
 import "./Pieces.css";
 import Piece from "./Piece.jsx";
 import { useRef } from "react";
-import { copyPosition, getChar } from "../../helper.js";
+import { copyPosition } from "../../helper.js";
 import { useAppContext } from "../../contexts/Context.js";
 import {
   clearCandidateMoves,
@@ -11,14 +11,9 @@ import arbiter from "../../arbiter/arbiter.js";
 import { useEffect } from "react";
 import { useState } from "react";
 import { openPromotion } from "../../reducer/actions/popup.js";
-import {
-  getCastleDirection,
-  getCastlingMoves,
-} from "../../arbiter/getMoves.js";
+import { getCastleDirection } from "../../arbiter/getMoves.js";
 import { updateCastling } from "../../reducer/game.js";
 import { evaluateBoard } from "../../Engine/ChessEngine.js";
-import { Status } from "../../constant.js";
-import App from "../../App.jsx";
 import { detectStalemate } from "../../reducer/game.js";
 export default function Pieces() {
   const ref = useRef();
