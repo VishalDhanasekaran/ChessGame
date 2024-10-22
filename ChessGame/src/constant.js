@@ -2,8 +2,9 @@ import { createPosition } from "./helper";
 export const Status = {
   ongoing: "Ongoing",
   promoting: "Promoting",
-  white: "White is  victorious",
-  black: "Black is victorious",
+  white: "White is  wins",
+  black: "Black is wins",
+  stalemate : 'Game draws due to stalemate',
 };
 export const initGameState = {
   position: [createPosition()],
