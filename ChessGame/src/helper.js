@@ -2,11 +2,6 @@ export const getChar = (number) => String.fromCharCode(number + 96);
 
 export const createPosition = () => {
   const position = new Array(8).fill("").map((x) => new Array(8).fill(""));
-  // if(defaultVal === "White"){
-  
-//position[5][7] = "kW";
-//position[7][7] = "kB";
-//position[1][7] = "rW";
 
   position[0][0] = "rW";
   position[0][1] = "nW";
@@ -25,12 +20,11 @@ export const createPosition = () => {
   position[7][4] = "kB";
   position[7][3] = "qB";
 
-  for (let index = 0; index < 8; index++) 
-  {
+
+  for (let index = 0; index < 8; index++) {
     position[1][index] = "pW";
     position[7 - 1][index] = "pB";
   }
-
   return position;
 };
 

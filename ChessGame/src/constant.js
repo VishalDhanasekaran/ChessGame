@@ -12,6 +12,7 @@ export const initGameState = {
   turn: "W",
   candidateMoves: [],
 
+  can_automate: false,
   status: Status.ongoing,
   promotionSquare: null,
   castleDirection: {

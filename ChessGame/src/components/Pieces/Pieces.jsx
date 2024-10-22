@@ -15,8 +15,10 @@ import {
   getCastleDirection,
   getCastlingMoves,
 } from "../../arbiter/getMoves.js";
+
 import { detectStalemate, updateCastling, detectInsufficientMaterial, detectCheckMate } from "../../reducer/game.js";
 import { recordMove } from "../../Engine/ChessEngine.js";
+
 export default function Pieces() {
   const ref = useRef();
   const { appState, dispatch } = useAppContext();
@@ -34,12 +36,11 @@ export default function Pieces() {
     const size = width / 8;
     const y = Math.floor((e.clientX - left) / size);
     const x = 7 - Math.floor((e.clientY - top) / size);
-    
+
     return { x, y };
   };
   const openPromotionPopup = ({ x, y, rank, file }) => {
     dispatch(openPromotion({ x, y, rank: Number(rank), file: Number(file) }));
-    // setShouldAutomate(true);
   };
   const updateCastlingState = ({ piece, rank, file }) => {
     const direction = getCastleDirection({
@@ -55,11 +56,11 @@ export default function Pieces() {
   const move = (e) => {
     const { x, y } = returnCoords(e);
     const [piece, rank, file] = e.dataTransfer.getData("text").split(",");
-    
-    if (appState.candidateMoves.find((m) => m[0] === x && m[1] === y)) 
-    {
-      const opponent = piece.endsWith('B')? 'W' : 'B';
-      const castleDirection = appState.castleDirection[`${piece.endsWith('B')? 'W' : 'B'}`];
+
+    if (appState.candidateMoves.find((m) => m[0] === x && m[1] === y)) {
+      const opponent = piece.endsWith("B") ? "W" : "B";
+      const castleDirection =
+        appState.castleDirection[`${piece.endsWith("B") ? "W" : "B"}`];
 
       if ((piece === "pW" && x === 7) || (piece === "pB" && x === 0)) {
         openPromotionPopup({ x, y, rank, file });
@@ -77,8 +78,7 @@ export default function Pieces() {
         y,
       });
 
-      if(newPosition)
-      {
+      if (newPosition) {
         dispatch(makeNewMove({ newPosition }));
         if(arbiter.insufficientMaterial(newPosition)) 
           dispatch(detectInsufficientMaterial());
@@ -89,6 +89,7 @@ export default function Pieces() {
           dispatch(detectCheckMate(piece[1]));
       } 
     }  
+
     dispatch(clearCandidateMoves());
   };
 
@@ -99,74 +100,20 @@ export default function Pieces() {
   function onDragOver(e) {
     e.preventDefault();
   }
-  const makeAutomatedMove = () => {
-    // Retrieve the latest position
-    const latestPosition = appState.position[appState.position.length - 1];
 
-    // Create a deep copy of the position to avoid mutation
-    let copiedPosition = copyPosition(latestPosition);
-    
-
-    // Find a piece to move and generate valid moves
-    let i = 1000;
-    while (i > 0) {
-      i -= 1;
-      
-      const rank = Math.floor(Math.random() * 8);
-      const file = Math.floor(Math.random() * 8);
-      
-      const piece = copiedPosition[rank][file];
-      if (piece.endsWith("B")) {
-        // Assuming 'a' denotes the automated player's pieces
-        const candidateMoves = arbiter.getValidMoves({
-          position: copiedPosition,
-          prevPosition: copiedPosition,
-          piece,
-          rank,
-          file,
-        });
-
-        if (
-          candidateMoves === undefined ||
-          candidateMoves[0] === undefined ||
-          candidateMoves.length === 0
-        ) {
-          continue;
-        }
-        const [targetX, targetY] = candidateMoves[0]; // Selecting the first valid move
-        
-
-        const updatedPosition = arbiter.performMove({
-          position: copiedPosition,
-          piece,
-          rank,
-          file,
-          x: targetX,
-          y: targetY,
-        });
-
-        if (updatedPosition.length > 0) {
-          
-          
-
-          //    recordMove(getChar(file + 1) + (rank + 1),getChar(targetY + 1) + (targetX + 1),  );
-          dispatch(makeNewMove({ newPosition: updatedPosition }));
-          break;
-        }
-        dispatch(clearCandidateMoves());
-      }
-    }
-    if (i <= 0) {
-      
-      alert("No valid moves for automated player");
-    }
-  };
   useEffect(() => {
-    if (shouldAutomate) {
-      makeAutomatedMove();
+    if (shouldAutomate || appState.can_automate == true) {
+      console.log("isit automated?");
+      makeAutomatedMove(appState, dispatch);
       setShouldAutomate(false); // Reset after making the move
-      
+    } else {
+      console.log("notdetected ", appState.turn);
     }
+    console.log("App statu", appState);
+    console.log(
+      "Score of board is ",
+      evaluateBoard(appState.position[appState.position.length - 1]),
+    );
   }, [shouldAutomate]);
 
   return (
@@ -186,3 +133,64 @@ export default function Pieces() {
     </div>
   );
 }
+export const makeAutomatedMove = (appState, dispatch) => {
+  if (appState.turn !== "B") {
+    console.log("mo", appState.can_automate);
+    return;
+  }
+  // Retrieve the latest position
+  const latestPosition = appState.position[appState.position.length - 1];
+
+  // Create a deep copy of the position to avoid mutation
+  let copiedPosition = copyPosition(latestPosition);
+
+  // Find a piece to move and generate valid moves
+  let i = 1000;
+  while (i > 0) {
+    i -= 1;
+
+    const rank = Math.floor(Math.random() * 8);
+    const file = Math.floor(Math.random() * 8);
+
+    const piece = copiedPosition[rank][file];
+    if (piece.endsWith("B")) {
+      // Assuming 'a' denotes the automated player's pieces
+      const candidateMoves = arbiter.getValidMoves({
+        position: copiedPosition,
+        prevPosition: copiedPosition,
+        piece,
+        rank,
+        file,
+      });
+
+      if (
+        candidateMoves === undefined ||
+        candidateMoves[0] === undefined ||
+        candidateMoves.length === 0
+      ) {
+        continue;
+      }
+      const [targetX, targetY] = candidateMoves[0]; // Selecting the first valid move
+
+      const updatedPosition = arbiter.performMove({
+        position: copiedPosition,
+        piece,
+        rank,
+        file,
+        x: targetX,
+        y: targetY,
+      });
+
+      if (updatedPosition.length > 0) {
+        console.log("calling record move from automated player");
+
+        dispatch(makeNewMove({ newPosition: updatedPosition }));
+        break;
+      }
+      dispatch(clearCandidateMoves());
+    }
+  }
+  if (i <= 0) {
+    alert("No valid moves for automated player");
+  }
+};
