@@ -14,7 +14,7 @@ import { movePawn, movePiece } from "./move";
 
 const arbiter = {
   getRegularMoves: function ({ position, piece, rank, file }) {
-        switch (piece[0]) {
+    switch (piece[0]) {
       case "k":
         return getKingMoves({ position, rank, file });
       case "p":
@@ -22,14 +22,12 @@ const arbiter = {
       case "q":
         return getQueenMoves({ position, rank, file });
       case "n":
-        
         return getKnightMoves({ position, rank, file });
       case "b":
         return getBishopMoves({ position, rank, file });
       case "r":
         return getRookMoves({ position, piece, rank, file });
       default:
-        
         return [];
     }
   },
@@ -42,7 +40,6 @@ const arbiter = {
     file,
   }) {
     let moves = this.getRegularMoves({ position, piece, rank, file });
-    
 
     let notInCheckMoves = [];
 
@@ -53,7 +50,6 @@ const arbiter = {
       ];
     }
     if (piece.startsWith("k")) {
-
       moves = [
         ...moves,
         ...getCastlingMoves({ position, castleDirection, piece, rank, file }),
@@ -91,8 +87,6 @@ const arbiter = {
     const enemy = player === "W" ? "B" : "W";
     let kingPos = getKingPosition(positionAfterMove, player);
     const enemyPieces = getPieces(positionAfterMove, enemy);
-    
-    
 
     const enemyMoves = enemyPieces.reduce(
       (acc, p) =>
@@ -102,15 +96,15 @@ const arbiter = {
             ? getPawnCaptures({
                 position: positionAfterMove,
                 prevPosition: position,
-                piece:p.piece,
-                rank:p.rank,
-                file:p.file
+                piece: p.piece,
+                rank: p.rank,
+                file: p.file,
               })
             : this.getRegularMoves({
                 position: positionAfterMove,
-                piece:p.piece,
-                rank:p.rank,
-                file:p.file
+                piece: p.piece,
+                rank: p.rank,
+                file: p.file,
               })),
         ]),
       [],
@@ -119,8 +113,6 @@ const arbiter = {
     for (let i = 0; i < enemyMoves.length; i++) {
       const [x, y] = enemyMoves[i];
       if (x === kingPos[0] && y === kingPos[1]) {
-        
-        
         break;
       }
     }

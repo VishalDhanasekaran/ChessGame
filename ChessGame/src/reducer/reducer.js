@@ -4,7 +4,7 @@ import actionTypes from "./actionTypes";
 export const reducer = (state, action) => {
   switch (action.type) {
     case actionTypes.NEW_MOVE: {
-      let { turn, position } = state;
+      let { turn, position, can_automate } = state;
 
       turn = turn === "W" ? "B" : "W";
 
@@ -46,6 +46,7 @@ export const reducer = (state, action) => {
       return {
         ...state,
         status: Status.ongoing,
+        can_automate: true,
         promotionSquare: null,
       };
     }
@@ -57,6 +58,7 @@ export const reducer = (state, action) => {
         castleDirection,
       };
     }
+
     default:
       return state;
   }
