@@ -7,7 +7,7 @@ import {
   makeNewMove,
 } from "../../../reducer/actions/move";
 
-const Promotion = ({ closePopupCallback }) => {
+const Promotion = ({ onClosePopup }) => {
   const options = ["q", "r", "b", "n"];
   const { appState, dispatch } = useAppContext();
   const { promotionSquare } = appState;
@@ -33,7 +33,7 @@ const Promotion = ({ closePopupCallback }) => {
   };
 
   const applySelection = (option) => () => {
-    closePopupCallback();
+    onClosePopup();
     const newPosition = copyPosition(
       appState.position[appState.position.length - 1],
     );
