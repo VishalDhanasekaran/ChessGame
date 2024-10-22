@@ -15,7 +15,7 @@ import {
   getCastleDirection,
   getCastlingMoves,
 } from "../../arbiter/getMoves.js";
-import { updateCastling } from "../../reducer/game.js";
+import { detectStalemate, updateCastling } from "../../reducer/game.js";
 import { recordMove } from "../../Engine/ChessEngine.js";
 export default function Pieces() {
   const ref = useRef();
@@ -56,7 +56,11 @@ export default function Pieces() {
     const { x, y } = returnCoords(e);
     const [piece, rank, file] = e.dataTransfer.getData("text").split(",");
     
-    if (appState.candidateMoves.find((m) => m[0] === x && m[1] === y)) {
+    if (appState.candidateMoves.find((m) => m[0] === x && m[1] === y)) 
+    {
+      const opponent = piece.endsWith('B')? 'W' : 'B';
+      const castleDirection = appState.castleDirection[`${piece.endsWith('B')? 'W' : 'B'}`];
+
       if ((piece === "pW" && x === 7) || (piece === "pB" && x === 0)) {
         openPromotionPopup({ x, y, rank, file });
         return;
@@ -72,17 +76,19 @@ export default function Pieces() {
         x,
         y,
       });
-      if (newPosition) {
-        dispatch(makeNewMove({ newPosition })); /*
-        recordMove(
-          getChar(Number(file) + 1) + (Number(rank) + 1),
-          getChar(y + 1) + (Number(x) + 1),
-        );
-           setShouldAutomate(true);*/
+
+      if(newPosition)
+      {
+        dispatch(makeNewMove({ newPosition }));
+        const isCheckMate = arbiter.isStalemate(newPosition, opponent, castleDirection);
+        if(isCheckMate) 
+          dispatch(detectStalemate());
       }
-    } else {
-      
-    }
+     // dispatch(makeNewMove({ newPosition }));
+         
+        
+    } 
+    
     dispatch(clearCandidateMoves());
   };
 
