@@ -1,14 +1,13 @@
 import "./Promotion.css";
 import "./../Popup.css";
 import { useAppContext } from "../../../contexts/Context";
-import { copyPosition, getChar } from "../../../helper";
+import { copyPosition, getChar, getNewMoveNotation } from "../../../helper";
 import {
   clearCandidateMoves,
   makeNewMove,
 } from "../../../reducer/actions/move";
 
 const Promotion = ({ onClosePopup, callback }) => {
-  console.log(callback);
   const options = ["q", "r", "b", "n"];
   const { appState, dispatch } = useAppContext();
   const { promotionSquare } = appState;
@@ -48,12 +47,12 @@ const Promotion = ({ onClosePopup, callback }) => {
     //notation for promotion in score sheet
     const newMove = getNewMoveNotation({
       ...promotionSquare,
-      piece: color + 'p',
+      piece: color + "p",
       promotesTo: option,
-      position: appState.position[appState.position.length - 1]
-    })
+      position: appState.position[appState.position.length - 1],
+    });
     dispatch(makeNewMove({ newPosition, newMove }));
-
+    callback(true);
   };
   return (
     <div
