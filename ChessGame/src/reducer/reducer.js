@@ -8,14 +8,6 @@ export const reducer = (state, action) => {
 
       turn = turn === "W" ? "B" : "W";
 
-      console.log(
-        "turn: ",
-        turn,
-        "oldie",
-        position,
-        "newie",
-        action.payload.newPosition,
-      );
       position = [...position, action.payload.newPosition];
       return {
         ...state,
@@ -70,14 +62,13 @@ export const reducer = (state, action) => {
       return {
         ...state,
         status: Status.insufficient,
-      };  
-    };
+      };
+    }
 
-    case actionTypes.WIN:{
-      return{
+    case actionTypes.WIN: {
+      return {
         ...state,
-        status: action.payload === 'W'? Status.white:Status.black,
-
+        status: action.payload === "W" ? Status.white : Status.black,
       };
     }
     case actionTypes.NEW_GAME: {

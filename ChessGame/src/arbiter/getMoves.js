@@ -393,8 +393,10 @@ export const getRookMoves = ({ position, piece, rank, file }) => {
 };
 
 export const getKingPosition = (position, player) => {
-  if (!position) return null;
-  let kingPos;
+  if (!position) {
+    return null;
+  }
+  let kingPos = [-1, -1];
   position.forEach((rank, x) => {
     rank.forEach((file, y) => {
       if (position[x][y].endsWith(player) && position[x][y].startsWith("k"))

@@ -2,6 +2,9 @@ import { copyPosition } from "../helper";
 
 export const movePawn = ({ position, piece, rank, file, x, y }) => {
   const newPosition = copyPosition(position);
+  if (newPosition[rank] === undefined) {
+    console.log("yea undefined for rank", rank);
+  }
   if (!newPosition[x][y] && x !== rank && y !== file) {
     newPosition[rank][y] = "";
   }

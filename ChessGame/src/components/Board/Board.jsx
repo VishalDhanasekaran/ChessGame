@@ -9,8 +9,11 @@ import { getKingPosition } from "../../arbiter/getMoves";
 import { copyPosition } from "../../helper";
 import Promotion from "../Popup/Promotion/Promotion";
 import GameEnds from "../Popup/GameEnds/GameEnds";
+import { useEffect, useState } from "react";
+import { evaluateBoard, makeAutomatedMove } from "../../Engine/ChessEngine";
 
 const Board = () => {
+  const [shouldAutomate, setShouldAutomate] = useState(false);
   const ranks = Array(8)
     .fill()
     .map((x, i) => 8 - i);
@@ -18,22 +21,19 @@ const Board = () => {
     .fill()
     .map((x, i) => i + 1);
 
-  const { appState } = useAppContext();
+  const { appState, dispatch } = useAppContext();
   const position = appState.position[appState.position.length - 1];
 
-    const isChecked = (({checkposition}) => {
-      
-    const isInCheck = (arbiter.isPlayerInCheck({positionAfterMove: checkposition, player: appState.turn}))
+  const isChecked = (({ checkposition }) => {
+    const isInCheck = arbiter.isPlayerInCheck({
+      positionAfterMove: checkposition,
+      player: appState.turn,
+    });
 
-    if(isInCheck)
-    {
-      
-      return getKingPosition(checkposition,appState.turn);
+    if (isInCheck) {
+      return getKingPosition(checkposition, appState.turn);
     }
-
-  })({checkposition:position})
-  
-  
+  })({ checkposition: position });
 
   const getTileClassName = (i, j) => {
     let c = (i + j) % 2 === 0 ? " tile--dark " : " tile--light ";
@@ -43,13 +43,19 @@ const Board = () => {
       else c += " highlighting";
     }
 
-        if (isChecked && isChecked[0] === i && isChecked[1] === j) {
-          
+    if (isChecked && isChecked[0] === i && isChecked[1] === j) {
       c += " checked";
-      }
-      
+    }
+
     return c;
   };
+
+  useEffect(() => {
+    if (shouldAutomate || appState.can_automate == true) {
+      makeAutomatedMove(appState, dispatch);
+      setShouldAutomate(false); // Reset after making the move
+    }
+  }, [shouldAutomate]);
 
   return (
     <div className="Board">
@@ -64,11 +70,11 @@ const Board = () => {
           )),
         )}
       </div>
-      <Pieces />
+      <Pieces automateCallBack={setShouldAutomate} />
 
-      <Popup>
-        <Promotion/>
-        <GameEnds/>
+      <Popup callback={setShouldAutomate}>
+        <Promotion />
+        <GameEnds />
       </Popup>
       <Files files={files} />
     </div>

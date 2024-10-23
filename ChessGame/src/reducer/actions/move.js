@@ -8,7 +8,6 @@ export const makeNewMove = ({ newPosition }) => {
 };
 
 export const generateCandidateMoves = (candidateMoves) => {
-  console.log("Candidate moves", candidateMoves);
   return {
     type: actionTypes.GENERATE_CANDIDATE_MOVES,
     payload: { candidateMoves },

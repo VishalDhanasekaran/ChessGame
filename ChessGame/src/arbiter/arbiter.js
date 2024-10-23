@@ -31,6 +31,28 @@ const arbiter = {
         return [];
     }
   },
+  getAllValidMoves: function ({ position, player }) {
+    let totalMoves = [];
+    for (let i = 0; i < 8; i++) {
+      for (let j = 0; j < 8; j++) {
+        const piece = position[i][j];
+        if (piece.endsWith(player)) {
+          const moves = this.getValidMoves({
+            position: position,
+            prevPosition: position,
+            piece: piece,
+            rank: i,
+            file: j,
+          });
+          totalMoves = [
+            ...totalMoves,
+            ...moves.map(([x, y]) => [piece, i, j, x, y]),
+          ];
+        }
+      }
+    }
+    return totalMoves;
+  },
   getValidMoves: function ({
     position,
     prevPosition,
@@ -121,80 +143,88 @@ const arbiter = {
     else return false;
   },
 
-  isStalemate : function(position, player, castleDirection)
-  {
+  isStalemate: function (position, player, castleDirection) {
     //console.log("stalement check function called!!");
-    const isInCheck = this.isPlayerInCheck({positionAfterMove: position, player});
+    const isInCheck = this.isPlayerInCheck({
+      positionAfterMove: position,
+      player,
+    });
 
-    if(isInCheck)
-      return false;
+    if (isInCheck) return false;
 
     const pieces = getPieces(position, player);
-    const moves = pieces.reduce((acc, p) => acc = [
-      ...acc,
-      ...(this.getValidMoves({
-        position, 
-        castleDirection,
-        ...p
-      }))
-    ], [])
+    const moves = pieces.reduce(
+      (acc, p) =>
+        (acc = [
+          ...acc,
+          ...this.getValidMoves({
+            position,
+            castleDirection,
+            ...p,
+          }),
+        ]),
+      [],
+    );
 
-    return (!isInCheck && moves.length===0);
+    return !isInCheck && moves.length === 0;
   },
 
-  insufficientMaterial : function(position) {
+  insufficientMaterial: function (position) {
+    const pieces = position.reduce(
+      (acc, rank) => (acc = [...acc, ...rank.filter((spot) => spot)]),
+      [],
+    );
 
-        const pieces = 
-            position.reduce((acc,rank) => 
-                acc = [
-                    ...acc,
-                    ...rank.filter(spot => spot)
-                ],[])
+    // King vs. king
+    if (pieces.length === 2) return true;
 
-        // King vs. king
-        if (pieces.length === 2)
-            return true
+    // King and bishop vs. king
+    // King and knight vs. king
+    if (
+      pieces.length === 3 &&
+      pieces.some((p) => p.startsWith("b") || p.startsWith("n"))
+    )
+      return true;
 
-        // King and bishop vs. king
-        // King and knight vs. king
-        if (pieces.length === 3 && pieces.some(p => p.startsWith('b') || p.startsWith('n')))
-            return true
+    // King and bishop vs. king and bishop of the same color as the opponent's bishop
+    if (
+      pieces.length === 4 &&
+      pieces.every((p) => p.startsWith("b") || p.startsWith("k")) &&
+      new Set(pieces).size === 4 &&
+      areSameColorTiles(
+        findPieceCoords(position, "bW")[0],
+        findPieceCoords(position, "bB")[0],
+      )
+    )
+      return true;
 
-        // King and bishop vs. king and bishop of the same color as the opponent's bishop
-        if (pieces.length === 4 && 
-            pieces.every(p => p.startsWith('b') || p.startsWith('k')) &&
-            new Set(pieces).size === 4 &&
-            areSameColorTiles(
-                findPieceCoords(position,'bW')[0],
-                findPieceCoords(position,'bB')[0]
-            )
-        )
-            return true
+    return false;
+  },
 
-        return false
-    },
+  isCheckMate: function (position, player, castleDirection) {
+    const isInCheck = this.isPlayerInCheck({
+      positionAfterMove: position,
+      player,
+    });
 
-    isCheckMate : function(position,player,castleDirection) {
-        const isInCheck = this.isPlayerInCheck({positionAfterMove: position, player})
+    if (!isInCheck) return false;
 
-        if (!isInCheck)
-            return false
-            
-        const pieces = getPieces(position,player)
-        const moves = pieces.reduce((acc,p) => acc = [
-            ...acc,
-            ...(this.getValidMoves({
-                    position, 
-                    castleDirection, 
-                    ...p
-                })
-            )
-        ], [])
+    const pieces = getPieces(position, player);
+    const moves = pieces.reduce(
+      (acc, p) =>
+        (acc = [
+          ...acc,
+          ...this.getValidMoves({
+            position,
+            castleDirection,
+            ...p,
+          }),
+        ]),
+      [],
+    );
 
-        return (isInCheck && moves.length === 0)
-    },
- 
-
+    return isInCheck && moves.length === 0;
+  },
 };
 
 export default arbiter;
