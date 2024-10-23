@@ -1,13 +1,13 @@
 import "./Promotion.css";
 import "./../Popup.css";
 import { useAppContext } from "../../../contexts/Context";
-import { copyPosition } from "../../../helper";
+import { copyPosition, getChar } from "../../../helper";
 import {
   clearCandidateMoves,
   makeNewMove,
 } from "../../../reducer/actions/move";
 
-const Promotion = ({ closePopupCallback }) => {
+const Promotion = ({ onClosePopup }) => {
   const options = ["q", "r", "b", "n"];
   const { appState, dispatch } = useAppContext();
   const { promotionSquare } = appState;
@@ -33,7 +33,7 @@ const Promotion = ({ closePopupCallback }) => {
   };
 
   const applySelection = (option) => () => {
-    closePopupCallback();
+    onClosePopup();
     const newPosition = copyPosition(
       appState.position[appState.position.length - 1],
     );
@@ -49,6 +49,7 @@ const Promotion = ({ closePopupCallback }) => {
       position: appState.position[appState.position.length - 1]
     })
     dispatch(makeNewMove({ newPosition, newMove }));
+
   };
   return (
     <div

@@ -7,6 +7,7 @@ export const reducer = (state, action) => {
     {
       let { turn, position, movesList} = state;
 
+
       turn = turn === "W" ? "B" : "W";
 
       console.log("turn: ",turn,"oldie",position,"newie",action.payload.newPosition,);
@@ -46,6 +47,7 @@ export const reducer = (state, action) => {
     case actionTypes.CLOSE_PROMOTION: 
     {
       return {...state,status: Status.ongoing,promotionSquare: null, };
+
     }
 
     case actionTypes.CAN_CASTLE: 
@@ -59,6 +61,7 @@ export const reducer = (state, action) => {
       return {...state,status: Status.stalemate,};  
     }
 
+
     case actionTypes.INSUFFICIENT_MATERIAL: 
     {
       return {...state, status: Status.insufficient,};  
@@ -68,13 +71,11 @@ export const reducer = (state, action) => {
     {
       return{...state,status: action.payload === 'W'? Status.white:Status.black,};
     }
-    case actionTypes.NEW_GAME: 
-    {
-      return {...action.payload};  
-    };
 
-
-   default:
+    case actionTypes.NEW_GAME: {
+      return { ...action.payload };
+    }
+    default:
       return state;
   }
 };

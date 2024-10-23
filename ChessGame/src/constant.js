@@ -13,6 +13,7 @@ export const initGameState = {
   movesList : [],
   candidateMoves: [],
 
+  can_automate: false,
   status: Status.ongoing,
   promotionSquare: null,
   castleDirection: {
