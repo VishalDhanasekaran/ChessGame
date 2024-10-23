@@ -9,7 +9,8 @@ const actionTypes = {
   CLOSE_PROMOTION: "CLOSE_PROMOTION",
 
   INSUFFICIENT_MATERIAL: "INSUFFICIENT_MATERIAL",
-  WIN : "WIN"
+  WIN : "WIN",
+  TAKE_BACK: "TAKE_BACK",
 
 };
 export default actionTypes;

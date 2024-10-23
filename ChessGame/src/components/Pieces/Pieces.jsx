@@ -83,9 +83,18 @@ export default function Pieces({ automateCallBack }) {
         y,
       });
 
-      if (newPosition) {
-        dispatch(makeNewMove({ newPosition }));
+      //geting the notation for new move
+      const newMove = getNewMoveNotation({
+        piece,
+        rank,
+        file,
+        x,
+        y,
+        position: currentPosition,
+      });
 
+      if (newPosition) {
+        dispatch(makeNewMove({ newPosition, newMove }));
         if (arbiter.insufficientMaterial(newPosition))
           dispatch(detectInsufficientMaterial());
         else if (arbiter.isStalemate(newPosition, opponent, castleDirection))

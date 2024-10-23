@@ -1,1 +1,1 @@
-A chess tournament Application
+A platform to play chess
