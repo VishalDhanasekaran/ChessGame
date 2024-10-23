@@ -1,7 +1,7 @@
 import "./Pieces.css";
 import Piece from "./Piece.jsx";
 import { useRef } from "react";
-import { copyPosition } from "../../helper.js";
+import { copyPosition, getNewMoveNotation } from "../../helper.js";
 import { useAppContext } from "../../contexts/Context.js";
 import {
   clearCandidateMoves,

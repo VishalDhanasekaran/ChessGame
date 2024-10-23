@@ -51,7 +51,7 @@ const Board = () => {
   };
 
   useEffect(() => {
-    if (shouldAutomate || appState.can_automate == true) {
+    if (shouldAutomate) {
       makeAutomatedMove(appState, dispatch);
       setShouldAutomate(false); // Reset after making the move
     }
