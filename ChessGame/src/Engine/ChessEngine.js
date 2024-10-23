@@ -1,5 +1,5 @@
 import arbiter from "../arbiter/arbiter";
-import { copyPosition } from "../helper";
+import { copyPosition, getNewMoveNotation } from "../helper";
 import { clearCandidateMoves, makeNewMove } from "../reducer/actions/move";
 
 export const evaluateBoard = (board) => {
@@ -15,22 +15,22 @@ const getPieceScore = (piece) => {
   let score = 0;
   switch (piece[0]) {
     case "p":
-      score = 10;
+      score = 100;
       break;
     case "n":
-      score = 50;
+      score = 320;
       break;
     case "b":
-      score = 90;
+      score = 330;
       break;
     case "r":
-      score = 130;
+      score = 500;
       break;
     case "q":
-      score = 170;
+      score = 900;
       break;
     case "k":
-      score = 1700;
+      score = 20000;
       break;
     default:
       score = 0;
@@ -91,7 +91,15 @@ export const makeAutomatedMove = (appState, dispatch) => {
   });
 
   if (updatedPosition.length > 0) {
-    dispatch(makeNewMove({ newPosition: updatedPosition }));
+    const newMove = getNewMoveNotation({
+      piece: move[0],
+      rank: move[1],
+      file: move[2],
+      x: move[3],
+      y: move[4],
+      position: updatedPosition,
+    });
+    dispatch(makeNewMove({ newPosition: updatedPosition, newMove: newMove }));
   }
   dispatch(clearCandidateMoves());
 };
