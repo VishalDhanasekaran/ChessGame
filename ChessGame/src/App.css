@@ -3,6 +3,7 @@
     display: grid;
     place-content: center;
     height: 100vh;
+    grid-template-columns: auto 220px;
 }
 button {
   background: var(--dark-tile);

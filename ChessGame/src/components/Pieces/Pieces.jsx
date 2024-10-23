@@ -17,13 +17,16 @@ import {
   getCastlingMoves,
 } from "../../arbiter/getMoves.js";
 
+
+
 import {
   detectStalemate,
   updateCastling,
   detectInsufficientMaterial,
   detectCheckMate,
 } from "../../reducer/game.js";
-import { evaluateBoard, recordMove } from "../../Engine/ChessEngine.js";
+//import { evaluateBoard, recordMove } from "../../Engine/ChessEngine.js";
+
 
 export default function Pieces() {
   const ref = useRef();
@@ -83,10 +86,18 @@ export default function Pieces() {
         x,
         y,
       });
+     
+      //geting the notation for new move
+      const newMove = getNewMoveNotation({
+        piece, rank, file, x, y, position:currentPosition
+      })
 
-      if (newPosition) {
-        dispatch(makeNewMove({ newPosition }));
-        if (arbiter.insufficientMaterial(newPosition))
+
+      if(newPosition)
+      {
+        dispatch(makeNewMove({ newPosition, newMove }));
+        if(arbiter.insufficientMaterial(newPosition)) 
+
           dispatch(detectInsufficientMaterial());
         else if (arbiter.isStalemate(newPosition, opponent, castleDirection))
           dispatch(detectStalemate());

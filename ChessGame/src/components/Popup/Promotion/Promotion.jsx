@@ -41,7 +41,15 @@ const Promotion = ({ onClosePopup }) => {
     newPosition[promotionSquare.x][promotionSquare.y] = `${option}${color}`;
     dispatch(clearCandidateMoves());
 
-    dispatch(makeNewMove({ newPosition }));
+    //notation for promotion in score sheet
+    const newMove = getNewMoveNotation({
+      ...promotionSquare,
+      piece: color + 'p',
+      promotesTo: option,
+      position: appState.position[appState.position.length - 1]
+    })
+    dispatch(makeNewMove({ newPosition, newMove }));
+
   };
   return (
     <div
