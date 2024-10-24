@@ -6,31 +6,126 @@ export const evaluateBoard = (board) => {
   let totalScore = 0;
   for (let i = 0; i < 8; i++) {
     for (let j = 0; j < 8; j++) {
-      totalScore += getPieceScore(board[i][j]);
+      totalScore += getPieceScore(board[i][j], i, j);
     }
   }
   return totalScore;
 };
-const getPieceScore = (piece) => {
+const getPieceScore = (piece, row, col) => {
+  const reverseArray = function (array) {
+    return array.slice().reverse();
+  };
+
+  const pawnEvalWhite = [
+    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+    [5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0],
+    [1.0, 1.0, 2.0, 3.0, 3.0, 2.0, 1.0, 1.0],
+    [0.5, 0.5, 1.0, 2.5, 2.5, 1.0, 0.5, 0.5],
+    [0.0, 0.0, 0.0, 2.0, 2.0, 0.0, 0.0, 0.0],
+    [0.5, -0.5, -1.0, 0.0, 0.0, -1.0, -0.5, 0.5],
+    [0.5, 1.0, 1.0, -2.0, -2.0, 1.0, 1.0, 0.5],
+    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+  ];
+
+  const pawnEvalBlack = reverseArray(pawnEvalWhite);
+
+  const knightEval = [
+    [-5.0, -4.0, -3.0, -3.0, -3.0, -3.0, -4.0, -5.0],
+    [-4.0, -2.0, 0.0, 0.0, 0.0, 0.0, -2.0, -4.0],
+    [-3.0, 0.0, 1.0, 1.5, 1.5, 1.0, 0.0, -3.0],
+    [-3.0, 0.5, 1.5, 2.0, 2.0, 1.5, 0.5, -3.0],
+    [-3.0, 0.0, 1.5, 2.0, 2.0, 1.5, 0.0, -3.0],
+    [-3.0, 0.5, 1.0, 1.5, 1.5, 1.0, 0.5, -3.0],
+    [-4.0, -2.0, 0.0, 0.5, 0.5, 0.0, -2.0, -4.0],
+    [-5.0, -4.0, -3.0, -3.0, -3.0, -3.0, -4.0, -5.0],
+  ];
+
+  const bishopEvalWhite = [
+    [-2.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -2.0],
+    [-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1.0],
+    [-1.0, 0.0, 0.5, 1.0, 1.0, 0.5, 0.0, -1.0],
+    [-1.0, 0.5, 0.5, 1.0, 1.0, 0.5, 0.5, -1.0],
+    [-1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, -1.0],
+    [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0],
+    [-1.0, 0.5, 0.0, 0.0, 0.0, 0.0, 0.5, -1.0],
+    [-2.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -2.0],
+  ];
+
+  const bishopEvalBlack = reverseArray(bishopEvalWhite);
+
+  const rookEvalWhite = [
+    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+    [0.5, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.5],
+    [-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5],
+    [-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5],
+    [-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5],
+    [-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5],
+    [-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5],
+    [0.0, 0.0, 0.0, 0.5, 0.5, 0.0, 0.0, 0.0],
+  ];
+
+  const rookEvalBlack = reverseArray(rookEvalWhite);
+
+  const evalQueen = [
+    [-2.0, -1.0, -1.0, -0.5, -0.5, -1.0, -1.0, -2.0],
+    [-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1.0],
+    [-1.0, 0.0, 0.5, 0.5, 0.5, 0.5, 0.0, -1.0],
+    [-0.5, 0.0, 0.5, 0.5, 0.5, 0.5, 0.0, -0.5],
+    [0.0, 0.0, 0.5, 0.5, 0.5, 0.5, 0.0, -0.5],
+    [-1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.0, -1.0],
+    [-1.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.0, -1.0],
+    [-2.0, -1.0, -1.0, -0.5, -0.5, -1.0, -1.0, -2.0],
+  ];
+
+  const kingEvalWhite = [
+    [-3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0],
+    [-3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0],
+    [-3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0],
+    [-3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0],
+    [-2.0, -3.0, -3.0, -4.0, -4.0, -3.0, -3.0, -2.0],
+    [-1.0, -2.0, -2.0, -2.0, -2.0, -2.0, -2.0, -1.0],
+    [2.0, 2.0, 0.0, 0.0, 0.0, 0.0, 2.0, 2.0],
+    [2.0, 3.0, 1.0, 0.0, 0.0, 1.0, 3.0, 2.0],
+  ];
+
+  const kingEvalBlack = reverseArray(kingEvalWhite);
+
   let score = 0;
+  if (piece === undefined) {
+    console.log("undefined");
+  }
   switch (piece[0]) {
     case "p":
-      score = 100;
+      score =
+        100 +
+        (piece[1] === "W" ? pawnEvalWhite[row][col] : pawnEvalBlack[row][col]) *
+          10;
       break;
     case "n":
-      score = 320;
+      score = 320 + knightEval[row][col] * 10;
       break;
     case "b":
-      score = 330;
+      score =
+        330 +
+        (piece[1] === "W"
+          ? bishopEvalWhite[row][col]
+          : bishopEvalBlack[row][col]) *
+          10;
       break;
     case "r":
-      score = 500;
+      score =
+        500 +
+        (piece[1] === "W" ? rookEvalWhite[row][col] : rookEvalBlack[row][col]) *
+          10;
       break;
     case "q":
-      score = 900;
+      score = 900 + evalQueen[row][col] * 10;
       break;
     case "k":
-      score = 20000;
+      score =
+        20000 +
+        (piece[1] === "W" ? kingEvalWhite[row][col] : kingEvalBlack[row][col]) *
+          10;
       break;
     default:
       score = 0;
@@ -119,10 +214,12 @@ export const orderedMoves = ({ position, moves, player }) => {
       position[moves[i][3]][moves[i][4]].endsWith(player === "W" ? "B" : "W")
     ) {
       moves[i][5] +=
-        (getPieceScore(moves[i][0]) + 10) * (player === "W" ? 1 : -1);
+        (getPieceScore(moves[i][0], moves[i][3], moves[i][4]) + 10) *
+        (player === "W" ? 1 : -1);
     } else if (position[moves[i][3]][moves[i][4]].endsWith(player)) {
       moves[i][5] +=
-        (getPieceScore(moves[i][0]) - 10) * (player === "W" ? 1 : -1);
+        (getPieceScore(moves[i][0], moves[i][3], moves[i][4]) - 30) *
+        (player === "W" ? -1 : 1);
     }
     if (
       arbiter.isPlayerInCheck({
@@ -139,7 +236,7 @@ export const orderedMoves = ({ position, moves, player }) => {
         player: player === "W" ? "B" : "W",
       })
     ) {
-      moves[i][5] = moves[i][5] + 1000 * (player === "W" ? 1 : -1);
+      moves[i][5] = moves[i][5] + 50 * (player === "W" ? 1 : -1);
     }
   }
   return moves.sort(function (a, b) {
@@ -167,12 +264,12 @@ export const findBestMove = ({ position, player }) => {
     });
     const score = negaMax({
       position: result,
-      depth: 5,
+      depth: 3,
       alpha: -Infinity,
       beta: +Infinity,
       color: -1,
     });
-    if (score < lowestScore) {
+    if (score <= lowestScore) {
       lowestScore = score;
       lowestindex = i;
     }
@@ -188,8 +285,12 @@ export const negaMax = ({ position, depth, alpha, beta, color }) => {
     }
     return evaluateBoard(position) * color;
   }
-  const moves = arbiter.getAllValidMoves({
+  const moves = orderedMoves({
     position: position,
+    moves: arbiter.getAllValidMoves({
+      position: position,
+      player: color === 1 ? "W" : "B",
+    }),
     player: color === 1 ? "W" : "B",
   });
   if (moves.length === 0) {
@@ -206,7 +307,7 @@ export const negaMax = ({ position, depth, alpha, beta, color }) => {
       x: moves[i][3],
       y: moves[i][4],
     });
-    if (i == 0) {
+    if (i === 0) {
       value =
         -1 *
         negaMax({
