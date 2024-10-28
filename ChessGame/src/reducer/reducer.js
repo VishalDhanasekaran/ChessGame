@@ -20,11 +20,13 @@ export const reducer = (state, action) => {
     case actionTypes.TAKE_BACK: {
       let { turn, position, movesList } = state;
 
+      console.log(position.length, movesList.length);
       if (position.length > 1) {
-        position = position.slice(0, position.length - 1);
-        movesList = movesList.slice(0, position.length - 1);
-        turn = turn === "W" ? "B" : "W";
+        position = position.slice(0, position.length - 2);
+        movesList = movesList.slice(0, movesList.length - 2);
+        turn = turn === "W" ? "W" : "B";
       }
+      console.log(position.length, movesList.length);
 
       return { ...state, turn, position, movesList };
     }

@@ -3,5 +3,6 @@
     flex-direction: column;
     padding: 10px;
     text-align: center;
-     height: calc(8*var(--tile-size));
-} 
+    height: calc(8 * var(--tile-size));
+    overflow-y: scroll;
+}

@@ -1,7 +1,9 @@
 .moves-list {
     display: flex;
     flex-direction: row;
-    color: var(--dark-tile);
+    color: #474242;
+    background-color: var(--light-tile-color);
+    border: 5px solid #474242;
     flex: 1 1;
     flex-wrap: wrap;
     align-content: start;
@@ -9,6 +11,7 @@
     font-size: 1.1em;
 }
 .moves-list div {
+    flex-direction: row;
     flex-basis: 35%;
     padding-left: 15%;
     text-align: left;
@@ -20,4 +23,5 @@
     position: absolute;
     left: 0;
     opacity: 0.5;
+    border: 1px solid var(--dark-tile-color);
 }
