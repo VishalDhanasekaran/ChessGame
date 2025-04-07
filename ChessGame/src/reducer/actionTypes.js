@@ -11,6 +11,8 @@ const actionTypes = {
   INSUFFICIENT_MATERIAL: "INSUFFICIENT_MATERIAL",
   WIN : "WIN",
   TAKE_BACK: "TAKE_BACK",
-
+  
+  // Player color selection
+  SET_PLAYER_COLOR: "SET_PLAYER_COLOR",
 };
 export default actionTypes;

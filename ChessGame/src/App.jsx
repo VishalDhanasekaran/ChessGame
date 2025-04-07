@@ -7,6 +7,7 @@ import { initGameState } from "./constant";
 import Control from "./components/Control/Control";
 import MovesList from "./components/Control/bits/MovesList";
 import TakeBack from "./components/Control/bits/TakeBack";
+import ColorSelection from "./components/ColorSelection/ColorSelection";
 
 function App() {
   const [appState, dispatch] = useReducer(reducer, initGameState);
@@ -21,7 +22,8 @@ function App() {
         <Control>
             <MovesList/>
             <TakeBack/>
-          </Control>
+        </Control>
+        <ColorSelection />
       </div>
     </AppContext.Provider>
   );

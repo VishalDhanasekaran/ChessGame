@@ -1,16 +1,107 @@
 import arbiter from "../arbiter/arbiter";
-import { copyPosition, getNewMoveNotation } from "../helper";
-import { clearCandidateMoves, makeNewMove } from "../reducer/actions/move";
+import { clearCandidateMoves, makeNewMove, generateCandidateMoves } from "../reducer/actions/move";
+import { PIECES, bitScanForward, toSquareIndex, ONE } from '../bitboard';
+import { executeMove } from "../arbiter/makeBitboardMove.js";
 
-export const evaluateBoard = (board) => {
-  let totalScore = 0;
-  for (let i = 0; i < 8; i++) {
-    for (let j = 0; j < 8; j++) {
-      totalScore += getPieceScore(board[i][j], i, j);
+/**
+ * Evaluates the current board position and returns a score
+ * @param {Object} bitboards - Bitboard representation of the chess position
+ * @returns {number} - Score of the position (positive favors white, negative favors black)
+ */
+export const evaluateBoard = (bitboards) => {
+  if (!bitboards) return 0;
+  
+  let materialScore = 0;
+  let positionalScore = 0;
+  let mobilityScore = 0;
+  let kingSafetyScore = 0;
+  
+  // Track piece counts for both sides
+  const pieceCounts = {
+    white: { pawns: 0, knights: 0, bishops: 0, rooks: 0, queens: 0 },
+    black: { pawns: 0, knights: 0, bishops: 0, rooks: 0, queens: 0 }
+  };
+  
+  // Evaluate material and position for each piece type
+  for (const pieceType in PIECES) {
+    if (pieceType === 'EMPTY') continue;
+    
+    const bb = bitboards[PIECES[pieceType]];
+    if (!bb || bb === 0n) continue;
+    
+    // Clone the bitboard for iteration
+    let tempBB = BigInt(bb);
+    
+    // Process each piece of this type
+    while (tempBB > 0n) {
+      const squareIndex = bitScanForward(tempBB);
+      const rank = Math.floor(squareIndex / 8);
+      const file = squareIndex % 8;
+      
+      // Get piece symbol (e.g., 'p' for pawn)
+      const pieceSymbol = pieceType.charAt(1).toLowerCase();
+      // Get piece color (e.g., 'W' for white)
+      const pieceColor = pieceType.charAt(0);
+      
+      // Create piece notation like 'pW' for white pawn
+      const piece = pieceSymbol + pieceColor;
+      
+      // Update piece counts
+      if (pieceColor === 'W') {
+        switch (pieceSymbol) {
+          case 'p': pieceCounts.white.pawns++; break;
+          case 'n': pieceCounts.white.knights++; break;
+          case 'b': pieceCounts.white.bishops++; break;
+          case 'r': pieceCounts.white.rooks++; break;
+          case 'q': pieceCounts.white.queens++; break;
+        }
+      } else {
+        switch (pieceSymbol) {
+          case 'p': pieceCounts.black.pawns++; break;
+          case 'n': pieceCounts.black.knights++; break;
+          case 'b': pieceCounts.black.bishops++; break;
+          case 'r': pieceCounts.black.rooks++; break;
+          case 'q': pieceCounts.black.queens++; break;
+        }
+      }
+      
+      // Add piece value and position score
+      const pieceScore = getPieceScore(piece, rank, file);
+      materialScore += pieceScore;
+      
+      // Clear the least significant bit to move to the next piece
+      tempBB &= tempBB - 1n;
     }
   }
+  
+  // Bonus for bishop pair
+  if (pieceCounts.white.bishops >= 2) materialScore += 50;
+  if (pieceCounts.black.bishops >= 2) materialScore -= 50;
+  
+  // Penalize having no pawns
+  if (pieceCounts.white.pawns === 0) materialScore -= 100;
+  if (pieceCounts.black.pawns === 0) materialScore += 100;
+  
+  // Endgame detection - no queens or less than 3 pieces excluding pawns and kings
+  const whiteMinorPieces = pieceCounts.white.knights + pieceCounts.white.bishops;
+  const blackMinorPieces = pieceCounts.black.knights + pieceCounts.black.bishops;
+  const whiteMajorPieces = pieceCounts.white.rooks + pieceCounts.white.queens;
+  const blackMajorPieces = pieceCounts.black.rooks + pieceCounts.black.queens;
+  
+  const isEndgame = (pieceCounts.white.queens + pieceCounts.black.queens === 0) || 
+                   (whiteMinorPieces + whiteMajorPieces <= 2 && blackMinorPieces + blackMajorPieces <= 2);
+  
+  // In endgame, prioritize pushing pawns
+  if (isEndgame) {
+    // Add endgame-specific evaluation here
+    // For example, centralize king in endgame
+  }
+  
+  // Combine all evaluation components
+  const totalScore = materialScore + positionalScore + mobilityScore + kingSafetyScore;
   return totalScore;
 };
+
 const getPieceScore = (piece, row, col) => {
   const reverseArray = function (array) {
     return array.slice().reverse();
@@ -126,280 +217,308 @@ const getPieceScore = (piece, row, col) => {
     default:
       score = 0;
   }
-  if (piece[1] === "B") {
-    score *= -1;
-  }
-  return score;
+  return piece[1] === "W" ? score : -score;
 };
 
+/**
+ * Makes an automated move for the AI player
+ * @param {Object} appState - Current application state
+ * @param {Function} dispatch - Redux dispatch function
+ */
 export const makeAutomatedMove = (appState, dispatch) => {
-  if (appState.turn !== "B") {
+  console.log('Making automated move for AI');
+  
+  // Get the latest game state from history
+  const latestState = appState.history[appState.history.length - 1];
+  const { bitboards, turn } = latestState;
+  
+  if (!bitboards || !turn) {
+    console.error('Invalid game state for automated move');
     return;
   }
-  // Retrieve the latest position
-  const latestPosition = appState.position[appState.position.length - 1];
-
-  // Create a deep copy of the position to avoid mutation
-  let copiedPosition = copyPosition(latestPosition);
-
-  // Find a piece to move and generate valid moves
-
-  /*
-    const rank = Math.floor(Math.random() * 8);
-    const file = Math.floor(Math.random() * 8);
-
-    const piece = copiedPosition[rank][file];
-    if (piece.endsWith("B")) {
-      const candidateMoves = arbiter.getValidMoves({
-        position: copiedPosition,
-        prevPosition: copiedPosition,
-        piece,
-        rank,
-        file,
-      });
-      if (
-        candidateMoves === undefined ||
-        candidateMoves[0] === undefined ||
-        candidateMoves.length === 0
-      ) {
-        continue;
-      }
-      const [targetX, targetY] = candidateMoves[0]; // Selecting the first valid move
-
-      */
-  const move = findBestMove({ position: copiedPosition, player: "B" });
-  if (move.length === 0) {
-    alert("No moves left");
+  
+  // Get all valid moves for the current player
+  const validMoves = arbiter.getValidMoves(null, latestState);
+  
+  if (!validMoves || validMoves.length === 0) {
+    console.log('No valid moves available for AI');
+    // Check if this is a checkmate or stalemate
+    if (arbiter.isPlayerInCheck(turn, bitboards, latestState.occupied)) {
+      console.log(`Checkmate! ${turn === 'W' ? 'Black' : 'White'} wins!`);
+    } else {
+      console.log('Stalemate! Game is a draw.');
+    }
     return;
   }
-  const updatedPosition = arbiter.performMove({
-    position: copiedPosition,
-    piece: move[0],
-    rank: move[1],
-    file: move[2],
-    x: move[3],
-    y: move[4],
-  });
-
-  if (updatedPosition.length > 0) {
-    const newMove = getNewMoveNotation({
-      piece: move[0],
-      rank: move[1],
-      file: move[2],
-      x: move[3],
-      y: move[4],
-      position: updatedPosition,
-    });
-    dispatch(makeNewMove({ newPosition: updatedPosition, newMove: newMove }));
-  }
+  
+  console.log(`AI found ${validMoves.length} valid moves to choose from`);
+  
+  // Use findBestMove to select a good move instead of random selection
+  console.log('AI is thinking...');
+  const bestMove = findBestMove(latestState);
+  console.log('AI selected best move:', bestMove);
+  
+  // If findBestMove fails for some reason, fall back to random selection
+  const selectedMove = bestMove || validMoves[Math.floor(Math.random() * validMoves.length)];
+  
+  // Check if the move is a capture
+  const toBB = ONE << BigInt(selectedMove.to);
+  const isCapture = (latestState.occupied & toBB) !== 0n;
+  
+  // Check for en passant capture
+  const isPawnDiagonalMove = (selectedMove.piece === PIECES.wP || selectedMove.piece === PIECES.bP) && 
+                            Math.abs(selectedMove.from % 8 - selectedMove.to % 8) === 1;
+  const isEnPassantCapture = latestState.enPassantTargetSq === selectedMove.to && isPawnDiagonalMove;
+  
+  // Create the move object
+  const moveObject = {
+    from: selectedMove.from,
+    to: selectedMove.to,
+    piece: selectedMove.piece,
+    promotion: selectedMove.promotion || null,
+    capture: isCapture || isEnPassantCapture,
+    enPassant: isEnPassantCapture,
+    castle: selectedMove.castle || null
+  };
+  
+  // Dispatch the move
+  dispatch(makeNewMove(moveObject));
   dispatch(clearCandidateMoves());
 };
-export const orderedMoves = ({ position, moves, player }) => {
-  for (let i = 0; i < moves.length; i++) {
-    const result = arbiter.performMove({
-      position: position,
-      piece: moves[i][0],
-      rank: moves[i][1],
-      file: moves[i][2],
-      x: moves[i][3],
-      y: moves[i][4],
-    });
-    moves[i].push(evaluateBoard(result));
 
-    if (
-      position[moves[i][3]][moves[i][4]].endsWith(player === "W" ? "B" : "W")
-    ) {
-      moves[i][5] +=
-        getPieceScore(moves[i][0], moves[i][3], moves[i][4]) *
-        (player === "W" ? 1 : -1);
-    } else if (position[moves[i][3]][moves[i][4]].endsWith(player)) {
-      moves[i][5] -= getPieceScore(moves[i][0], moves[i][3], moves[i][4]);
-    }
-    if (
-      arbiter.isPlayerInCheck({
-        positionAfterMove: result,
-        position: position,
-        player: player,
-      })
-    ) {
-      moves[i][5] -= 20000;
-    } else if (
-      arbiter.isPlayerInCheck({
-        positionAfterMove: result,
-        position: position,
-        player: player === "W" ? "B" : "W",
-      })
-    ) {
-      moves[i][5] = moves[i][5] + 2000;
-    }
+/**
+ * Finds the best move for the current player using a simplified evaluation
+ * @param {Object} gameState - Current game state with bitboards
+ * @returns {Object} - Best move object
+ */
+export const findBestMove = (gameState) => {
+  // Get all valid moves for the current player
+  let moves = arbiter.getValidMoves(null, gameState);
+  
+  if (!moves || moves.length === 0) {
+    return null;
   }
-  return moves.sort(function (a, b) {
-    return (a[5] - b[5]) * (player === "W" ? 1 : -1);
-  });
-};
-export const findBestMove = ({ position, player }) => {
-  let moves = arbiter.getAllValidMoves({ position, player });
-  moves = orderedMoves({
-    position: position,
-    moves: moves,
-    player: player,
-  });
-  let lowestindex = 0;
-  let lowestScore = +0;
-  const prevpos = copyPosition(position);
-  for (let i = 0; i < moves.length; i++) {
-    const result = arbiter.performMove({
-      position: prevpos,
-      piece: moves[i][0],
-      rank: moves[i][1],
-      file: moves[i][2],
-      x: moves[i][3],
-      y: moves[i][4],
+  
+  // Basic move scoring function
+  const scoreMoves = (moves, gameState) => {
+    return moves.map(move => {
+      let score = 0;
+      
+      // Prioritize captures based on captured piece value
+      if (move.capture) {
+        // Find what piece might be captured at the target square
+        const targetSquareBB = ONE << BigInt(move.to);
+        for (const pieceType in PIECES) {
+          if (pieceType === 'EMPTY') continue;
+          
+          // Check if this piece type is on the target square
+          if (gameState.bitboards[PIECES[pieceType]] && 
+              (BigInt(gameState.bitboards[PIECES[pieceType]]) & targetSquareBB) !== 0n) {
+            // Add value based on piece type
+            score += getPieceBaseValue(pieceType);
+            break;
+          }
+        }
+      }
+      
+      // Prioritize promotions
+      if (move.promotion) {
+        score += 900; // Queen value
+      }
+      
+      // Prioritize center control for pawns and knights
+      if ((move.piece === PIECES.wP || move.piece === PIECES.bP || 
+           move.piece === PIECES.wN || move.piece === PIECES.bN) && 
+          (move.to === 27 || move.to === 28 || move.to === 35 || move.to === 36)) {
+        score += 10;
+      }
+      
+      return { move, score };
     });
-    const score = miniMax({
-      position: result,
-      depth: 1,
-      alpha: -Infinity,
-      beta: +Infinity,
-      maximisePlayer: player === "W" ? true : false,
-    });
-    if (score > lowestScore) {
-      lowestScore = score;
-      lowestindex = i;
-    }
-  }
-  return moves[lowestindex];
+  };
+  
+  // Score and sort the moves
+  const scoredMoves = scoreMoves(moves, gameState);
+  scoredMoves.sort((a, b) => b.score - a.score);
+  
+  // Return the highest scored move
+  return scoredMoves[0].move;
 };
-export const miniMax = ({ position, depth, alpha, beta, maximisePlayer }) => {
-  if (depth === 0 || arbiter.insufficientMaterial(position)) {
-    if (depth !== 0) {
-      console.log("depth reach");
-    }
-    return evaluateBoard(position) * -1;
+
+/**
+ * MiniMax algorithm with alpha-beta pruning for chess AI
+ * @param {Object} params - Parameters for minimax
+ * @returns {number} - Evaluation score
+ */
+export const miniMax = ({ gameState, depth, alpha, beta, maximizePlayer }) => {
+  // Terminal conditions
+  if (depth === 0) {
+    return evaluateBoard(gameState.bitboards);
   }
+  
+  // Get current player
+  const currentPlayer = maximizePlayer ? 'W' : 'B';
+  
+  // Get valid moves for current player
+  const validMoves = arbiter.getValidMoves(null, {
+    ...gameState,
+    turn: currentPlayer
+  });
+  
+  // Order moves for better pruning
   const moves = orderedMoves({
-    position: position,
-    moves: arbiter.getAllValidMoves({
-      position: position,
-      player: maximisePlayer ? "W" : "B",
-    }),
-    player: maximisePlayer ? "W" : "B",
+    gameState,
+    moves: validMoves,
+    player: currentPlayer
   });
+  
+  // No moves available - checkmate or stalemate
   if (moves.length === 0) {
-    return evaluateBoard(position) * -1;
-  }
-  if (maximisePlayer) {
-    let bestmove = -Infinity;
-    const prevPos = copyPosition(position);
-    for (let i = 0; i < moves.length; i++) {
-      const result = arbiter.performMove({
-        position: prevPos,
-        piece: moves[i][0],
-        rank: moves[i][1],
-        file: moves[i][2],
-        x: moves[i][3],
-        y: moves[i][4],
-      });
-
-      bestmove = Math.max(
-        bestmove,
-        miniMax({
-          position: result,
-          depth: depth - 1,
-          alpha: alpha,
-          beta: beta,
-          maximisePlayer: !maximisePlayer,
-        }),
-      );
-      alpha = Math.max(alpha, bestmove);
-      if (beta <= alpha) {
-        return bestmove;
-      }
+    // Check if king is in check (checkmate)
+    if (arbiter.isPlayerInCheck(currentPlayer, gameState.bitboards, gameState.occupied)) {
+      return maximizePlayer ? -100000 : 100000; // Checkmate
     }
-    return bestmove;
-  } else {
-    let bestmove = +Infinity;
-
-    ////////////////////
-    const prevPos = copyPosition(position);
-    for (let i = 0; i < moves.length; i++) {
-      const result = arbiter.performMove({
-        position: prevPos,
-        piece: moves[i][0],
-        rank: moves[i][1],
-        file: moves[i][2],
-        x: moves[i][3],
-        y: moves[i][4],
-      });
-
-      bestmove = Math.min(
-        bestmove,
-        miniMax({
-          position: result,
-          depth: depth - 1,
-          alpha: alpha,
-          beta: beta,
-          maximisePlayer: !maximisePlayer,
-        }),
-      );
-      beta = Math.min(beta, bestmove);
-      if (beta <= alpha) {
-        return bestmove;
-      }
-    }
-    return bestmove;
+    return 0; // Stalemate
   }
-
-  /*  if (maximisePlayer) {
-    let maxEval = -30000;
+  
+  if (maximizePlayer) {
+    let bestScore = -Infinity;
+    
     for (let i = 0; i < moves.length; i++) {
-    position = arbiter.performMove({
-            position: position,
-            piece: moves[i][0],
-            rank: moves[i][1],
-            file: moves[i][2],
-            x: moves[i][3],
-            y: moves[i][4],
-          });
-      maxEval = Math.max(
-        maxEval,
-        negaMax({
-          position: position,
-
-          depth: depth - 1,
-          maximisePlayer: !maximisePlayer,
-        }),
-      );
-      if (maxEval >= beta) {
+      // Create a deep copy of the game state
+      const nextGameState = JSON.parse(JSON.stringify(gameState));
+      nextGameState.bitboards = {};
+      
+      // Copy BigInt values properly
+      for (const pieceType in gameState.bitboards) {
+        nextGameState.bitboards[pieceType] = BigInt(gameState.bitboards[pieceType].toString());
+      }
+      
+      // Execute the move
+      const { newBitboards } = executeMove(nextGameState, moves[i]);
+      nextGameState.bitboards = newBitboards;
+      
+      // Recursive evaluation
+      const score = miniMax({
+        gameState: nextGameState,
+        depth: depth - 1,
+        alpha,
+        beta,
+        maximizePlayer: !maximizePlayer
+      });
+      
+      bestScore = Math.max(bestScore, score);
+      alpha = Math.max(alpha, bestScore);
+      
+      // Alpha-beta pruning
+      if (beta <= alpha) {
         break;
       }
-      alpha = Math.max(alpha, maxEval);
     }
-    return maxEval;
+    
+    return bestScore;
   } else {
-    let minEval = +30000;
+    let bestScore = Infinity;
+    
     for (let i = 0; i < moves.length; i++) {
-      position = arbiter.performMove({
-        position: position,
-        piece: moves[i][0],
-        rank: moves[i][1],
-        file: moves[i][2],
-        x: moves[i][3],
-        y: moves[i][4],
+      // Create a deep copy of the game state
+      const nextGameState = JSON.parse(JSON.stringify(gameState));
+      nextGameState.bitboards = {};
+      
+      // Copy BigInt values properly
+      for (const pieceType in gameState.bitboards) {
+        nextGameState.bitboards[pieceType] = BigInt(gameState.bitboards[pieceType].toString());
+      }
+      
+      // Execute the move
+      const { newBitboards } = executeMove(nextGameState, moves[i]);
+      nextGameState.bitboards = newBitboards;
+      
+      // Recursive evaluation
+      const score = miniMax({
+        gameState: nextGameState,
+        depth: depth - 1,
+        alpha,
+        beta,
+        maximizePlayer: !maximizePlayer
       });
-      minEval = Math.min(
-        minEval,
-        negaMax({
-          position: position,
-          depth: depth - 1,
-          maximisePlayer: !maximisePlayer,
-        }),
-      );
-      if (minEval <= alpha) {
+      
+      bestScore = Math.min(bestScore, score);
+      beta = Math.min(beta, bestScore);
+      
+      // Alpha-beta pruning
+      if (beta <= alpha) {
         break;
       }
-      beta = Math.min(beta, minEval);
     }
-    return minEval;
-  }*/
+    
+    return bestScore;
+  }
+};
+
+/**
+ * Orders moves for better alpha-beta pruning efficiency
+ * @param {Object} params - Parameters for move ordering
+ * @returns {Array} - Ordered moves
+ */
+export const orderedMoves = ({ gameState, moves, player }) => {
+  if (!moves || moves.length === 0) return [];
+  
+  const scoredMoves = moves.map(move => {
+    let score = 0;
+    
+    // Prioritize captures based on piece values
+    if (move.capture) {
+      // Find which piece is being captured
+      const toBB = ONE << BigInt(move.to);
+      for (const pieceType in PIECES) {
+        if (pieceType === 'EMPTY') continue;
+        
+        if (gameState.bitboards[PIECES[pieceType]] && 
+            (gameState.bitboards[PIECES[pieceType]] & toBB) !== 0n) {
+          // Add captured piece value to score
+          score += getPieceBaseValue(pieceType);
+          break;
+        }
+      }
+    }
+    
+    // Prioritize promotions
+    if (move.promotion) {
+      score += 900; // Queen value
+    }
+    
+    // Prioritize center control for pawns and knights in opening
+    if ((move.piece === PIECES.wP || move.piece === PIECES.bP || 
+         move.piece === PIECES.wN || move.piece === PIECES.bN) && 
+        (move.to === 27 || move.to === 28 || move.to === 35 || move.to === 36)) {
+      score += 10;
+    }
+    
+    return { move, score };
+  });
+  
+  // Sort moves by score (descending)
+  scoredMoves.sort((a, b) => b.score - a.score);
+  
+  return scoredMoves.map(m => m.move);
+};
+
+/**
+ * Gets the base value of a piece type
+ * @param {string} pieceType - Type of piece (e.g., 'wP', 'bQ')
+ * @returns {number} - Base value of the piece
+ */
+const getPieceBaseValue = (pieceType) => {
+  const piece = pieceType.charAt(1).toLowerCase();
+  
+  switch (piece) {
+    case 'p': return 100;  // Pawn
+    case 'n': return 320;  // Knight
+    case 'b': return 330;  // Bishop
+    case 'r': return 500;  // Rook
+    case 'q': return 900;  // Queen
+    case 'k': return 20000; // King
+    default: return 0;
+  }
 };

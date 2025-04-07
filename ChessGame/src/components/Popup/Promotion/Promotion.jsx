@@ -1,59 +1,106 @@
 import "./Promotion.css";
 import "./../Popup.css";
 import { useAppContext } from "../../../contexts/Context";
-import { copyPosition, getChar, getNewMoveNotation } from "../../../helper";
+import { PIECES } from "../../../bitboard";
 import {
   clearCandidateMoves,
   makeNewMove,
 } from "../../../reducer/actions/move";
+import { closePromotionBox } from "../../../reducer/actions/popup";
 
 const Promotion = ({ onClosePopup, callback }) => {
   const options = ["q", "r", "b", "n"];
   const { appState, dispatch } = useAppContext();
   const { promotionSquare } = appState;
+  
   if (!promotionSquare) {
-    return;
+    return null;
   }
-  const color = promotionSquare.x === 7 ? "W" : "B";
+
+  console.log('Promotion data:', promotionSquare);
+  
+  // Determine the color based on the piece type (PIECES enum)
+  // PIECES.wP = 0, PIECES.bP = 6
+  const isPieceWhite = promotionSquare.piece < 6;
+  const color = isPieceWhite ? "W" : "B";
+  
+  // Calculate position for the promotion popup
   const determinePromotionBoxPosition = () => {
     const style = {};
-    if (promotionSquare.x === 7) {
-      style.top = "-12.5%";
+    const file = promotionSquare.to % 8;
+    const rank = Math.floor(promotionSquare.to / 8);
+    
+    // Position based on rank (row)
+    if (rank === 7) { // White promoting
+      style.top = "87.5%";
+    } else if (rank === 0) { // Black promoting
+      style.top = "12.5%";
     } else {
-      style.top = "97.5%";
+      style.top = "50%";
     }
-    if (promotionSquare.y <= 1) {
+    
+    // Position based on file (column)
+    if (file <= 1) {
       style.left = "0%";
-    } else if (promotionSquare.y >= 6) {
+    } else if (file >= 6) {
       style.right = "0%";
     } else {
-      style.left = `${12.5 * promotionSquare.y - 20}%`;
+      style.left = `${12.5 * file - 20}%`;
     }
+    
     return style;
   };
 
+  // Handle promotion piece selection
   const applySelection = (option) => () => {
-    onClosePopup();
-    if (appState.turn === "W") {
+    if (onClosePopup) {
+      onClosePopup();
+    }
+    
+    // Map the selected option to the corresponding piece type
+    let promotionPieceType;
+    if (isPieceWhite) {
+      // White pieces
+      switch (option) {
+        case 'q': promotionPieceType = PIECES.wQ; break;
+        case 'r': promotionPieceType = PIECES.wR; break;
+        case 'b': promotionPieceType = PIECES.wB; break;
+        case 'n': promotionPieceType = PIECES.wN; break;
+        default: promotionPieceType = PIECES.wQ;
+      }
+    } else {
+      // Black pieces
+      switch (option) {
+        case 'q': promotionPieceType = PIECES.bQ; break;
+        case 'r': promotionPieceType = PIECES.bR; break;
+        case 'b': promotionPieceType = PIECES.bB; break;
+        case 'n': promotionPieceType = PIECES.bN; break;
+        default: promotionPieceType = PIECES.bQ;
+      }
+    }
+    
+    // Create the move object with the promotion piece
+    const moveObject = {
+      from: promotionSquare.from,
+      to: promotionSquare.to,
+      piece: promotionSquare.piece,
+      promotion: promotionPieceType,
+      capture: promotionSquare.capture || false,
+      enPassant: promotionSquare.enPassant || false,
+      castle: null
+    };
+    
+    console.log('Dispatching promotion move:', moveObject);
+    
+    // Dispatch the move with the selected promotion piece
+    dispatch(makeNewMove(moveObject));
+    dispatch(clearCandidateMoves());
+    
+    if (callback) {
       callback();
     }
-    const newPosition = copyPosition(
-      appState.position[appState.position.length - 1],
-    );
-    newPosition[promotionSquare.rank][promotionSquare.file] = "";
-    newPosition[promotionSquare.x][promotionSquare.y] = `${option}${color}`;
-    dispatch(clearCandidateMoves());
-
-    //notation for promotion in score sheet
-    const newMove = getNewMoveNotation({
-      ...promotionSquare,
-      piece: color + "p",
-      promotesTo: option,
-      position: appState.position[appState.position.length - 1],
-    });
-    dispatch(makeNewMove({ newPosition, newMove }));
-    callback(true);
   };
+  
   return (
     <div
       className="popup--inner promotion-choices"

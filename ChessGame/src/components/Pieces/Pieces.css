@@ -1,17 +1,20 @@
-
 .pieces { 
     position: absolute;
-    left:calc(.25*var(--tile-size));
+    left: calc(.25*var(--tile-size));
     right: 0;
     top: 0;
-    bottom:calc(.25*var(--tile-size));
+    bottom: calc(.25*var(--tile-size));
+    width: calc(8 * var(--tile-size));
+    height: calc(8 * var(--tile-size));
 }
-.piece { 
-    width : 12.500%;
-    height : 12.500%;
-    position: absolute;
-    background-size: 100%;
 
+.piece { 
+    width: 12.5%;
+    height: 12.5%;
+    position: absolute;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
 }
 
 .piece.kB {background-image: url('./../../assets/kB.svg');}

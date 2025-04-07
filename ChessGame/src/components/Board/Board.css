@@ -6,6 +6,23 @@
         );
 }
 
+/* Board orientation for white and black perspectives */
+
+/* When playing as white (default), white pieces are at the bottom */
+/* When playing as black (flipped), black pieces are at the bottom */
+
+/* We're now handling the positioning in the Pieces.jsx component */
+/* No need for CSS transforms that might conflict */
+
+/* Flip the rank and file labels when playing as black */
+.Board.board-flipped .File {
+    flex-direction: row-reverse;
+}
+
+.Board.board-flipped .Ranks {
+    flex-direction: column-reverse;
+}
+
 .tiles {
     display: grid;
     grid-template-columns: repeat(8, var(--tile-size));

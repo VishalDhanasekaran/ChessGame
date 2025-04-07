@@ -1,8 +1,12 @@
 import actionTypes from "../actionTypes";
-export const makeNewMove = ({newPosition,newMove}) => {
+export const makeNewMove = (move) => {
     return {
         type: actionTypes.NEW_MOVE,
-        payload: {newPosition,newMove},
+        payload: {
+            ...move,
+            // Explicitly preserve capture flag
+            capture: !!move.capture
+        },
     }
 }
 
@@ -23,4 +27,3 @@ export const takeBack = () => {
             type: actionTypes.TAKE_BACK
            };
 };
-

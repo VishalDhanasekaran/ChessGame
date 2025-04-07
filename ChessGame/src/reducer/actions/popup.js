@@ -1,8 +1,8 @@
 import actionTypes from "../actionTypes";
-export const openPromotion = ({ x, y, rank, file }) => {
+export const openPromotion = (moveData) => {
   return {
     type: actionTypes.OPEN_PROMOTION,
-    payload: { x, y, rank, file },
+    payload: moveData, // Pass all move data for promotion completion
   };
 };
 export const closePromotionBox = () => {
